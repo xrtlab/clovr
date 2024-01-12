@@ -43,7 +43,7 @@ CLOVR will be published in the future and will have an associated bibtex to refe
 
 ## License and External Libraries
 
-This project is licensed under the MIT license. Some code snippets from other projects may have also been included, however they are also MIT open-source projects. 
+This project is licensed under the **MIT license**. Some code snippets from other projects may have also been included, however they are also MIT open-source projects. 
 
 The following are the potential sources of code:
  - Virtual Motion Capture [https://github.com/sh-akira/VirtualMotionCapture]
@@ -52,6 +52,7 @@ The following are the potential sources of code:
  - OVRT [https://github.com/biosmanager/unity-openvr-tracking]
  - OpenVR [https://github.com/ValveSoftware/openvr]
  - Unity OpenVR Tracking [https://github.com/ValveSoftware/steamvr_unity_plugin]
+ - Native Web Socket [https://github.com/endel/NativeWebSocket]
 
  ChatGPT was occasionally used for guessing or locating code API from OpenVR, however all code was written from scratch where it was used. 
 
@@ -62,9 +63,9 @@ Please file your pull requests and issues in their respective channels. As it mi
 ## Contribuitors
 
 The supporting authors for this project have been the following: 
-- **Esteban Segarra Martinez (University of Central Florida)** - Full development of the tool and writeup of the associated publiocation. 
+- **Esteban Segarra Martinez (University of Central Florida)** - Full development of the tool and writeup of the associated publication. 
 - **Ryan P. McMahan (University of Central Florida)** - Advised and steered suggestions to improve the tool
-- **Ayesha Malik (University of Central Florida)** - Wrote documentation, tested early prototypes, and edited early versions of the paper
+- **Ayesha Malik (University of Central Florida)** - Wrote documentation, tested early prototypes, and edited the publication paper
 
 ## Papers that have used CLOVR
 
