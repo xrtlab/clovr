@@ -2,7 +2,6 @@
 
 Capturing and Logging OpenVR (CLOVR) is an application for collecting realtime data from VR equipment using OpenVR through the SteamVR runtime component. Pose and interaction data is collect in realtime as a secondary target application is being observed as a primary application. Meanwhile, CLOVR does not interface directly with an application and acts as a OpenVR overlay. Additonally, CLOVR can interface with external screen recording software such as Open Broadcasting Software (OBS) to record the in-VR session. 
 
-
 ## Key Features
 
 CLOVR can perform the following: 
@@ -20,21 +19,42 @@ CLOVR can perform the following:
 
 ## Setup
 
-Please take a look at the following video for setting up CLOVR.
+1.	Install OBS from a trusted source [LINK TO GITHUB][WEBSITE]
+    a.	Install this application first to be able to record videos
+2.	Download and unpackage CLOVR in a known location
+3.	Start SteamVR. 
+    a.	If on the Occulus platform, connect your Occulus, connect to Occulus Rift, and start SteamVR
+4.	Start CLOVR, record a test recording to confirm and setup/apply settings to OBS.
+5.	If there is an OBS recoring error, open OBS and confirm the following:
+    a.	Profile set is: CLEVER_OpenVR_OBS_Capture
+    b.	Scene Collection set is: Video-and-Microphone-VR-Capture
+6.	You should be ready to record any application!
 
-[Super special video]
-
+Please take a look at our installation videos to view a more verbose and step by step explanation on the installation process. 
 
 ## Example Datasets (One-Shot Datasets)
 
-We have included recordings from different applications to provide a diverse level of data that researchers can immediately use to test their CSV loading. 
+We have included recordings from different applications to provide a diverse level of data that researchers can immediately use to test their CSV loading. Please look at this repository to locate the datasets at: https://doi.org/10.5281/zenodo.10499190
 
+
+## Questionnaires 
+
+By default we in clude 4 premade questionnaires. These are: 
+
+- Game engagement questionnaire (GEQ)
+- Spatial presence experience scale (SPES)
+- Simulator Sickness Questionnaire (SSQ)
+- Preliminary Embodiment Short Questionnaire (PESQ)
+
+Users are encouraged to develop additional Likert questionnaires using the template format we provide. 
 
 ## User Manual
 
 The user manual for CLOVR can be downloaded in this repository. It is reccomended to look at the video below for a quick start version. 
 
 [Video]
+
+There is also a written user manual found in the /Documentation folder in this repository. 
 
 ## Referencing CLOVR
 
@@ -73,4 +93,4 @@ This section remains blank and to be updated in the future.
 
 ## Supporting Grants
 
-This project was supported by the National Science Foundation through the grant numbered 2232448 with the name **Capturing and Logging Ecological Virtual Experiences and Reality (CLEVER)**. 
+This project was supported by the National Science Foundation through the grant number 2232448 with the name **Capturing and Logging Ecological Virtual Experiences and Reality (CLEVER)**. 
