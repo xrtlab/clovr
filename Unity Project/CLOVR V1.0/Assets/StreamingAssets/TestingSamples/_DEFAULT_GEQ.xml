@@ -1,0 +1,58 @@
+<!-- Questions taken in reference to:
+https://pure.tue.nl/ws/files/21666907/Game_Experience_Questionnaire_English.pdf
+-->
+
+<?xml version="1.0" encoding="UTF-8"?>
+<survey>
+    <surveyName>Game Engagement Questionnaire</surveyName>
+    <abbrevation>GEQ</abbrevation>
+    <title>Please take some time for this survey.</title>
+    <surveyQuestions>
+        <Questions>
+            <linebreaker>,</linebreaker>
+            <totalQuestionCount>33</totalQuestionCount>
+            <titles>
+                I felt content,
+                I felt skilful,
+                I was interested in the game's story,
+                I thought it was fun,
+                I was fully occupied with the game,
+                I felt happy,
+                It gave me a bad mood,
+                I thought about other things,
+                I found it tiresome,
+                I felt competent,
+                I thought it was hard,
+                It was aesthetically pleasing,
+                I forgot everything around me,
+                I felt good,
+                I was good at it,
+                I felt bored,
+                I felt successful,
+                I felt imaginative,
+                I felt that I could explore things,
+                I enjoyed it,
+                I was fast at reaching the game's targets,
+                I felt annoyed,
+                I felt pressured,
+                I felt irritable,
+                I lost track of time, 
+                I felt challenged, 
+                I found it impressive,
+                I was deeply concentrating in the game,
+                I felt frustrated,
+                It felt like a rich experience,
+                I lost connection with the outside world,
+                I felt time pressure, 
+                I had to put a lot of effort into it,
+            </titles>
+
+            <ShowAllSubquestions>-1</ShowAllSubquestions> 
+            <!-- -1  denotes no subquestions or categories. -->
+            <subquestions>   
+                GEQ has no subquestions or categories  
+            </subquestions>
+            <answers>0,1,2,3,4</answers>
+        </Questions>
+    </surveyQuestions>
+</survey>

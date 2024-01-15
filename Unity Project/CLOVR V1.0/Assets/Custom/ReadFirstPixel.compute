@@ -1,0 +1,42 @@
+#pragma kernel ReadFirstPixel
+
+// Input texture
+Texture2D<float4> inputTexture;
+
+// Output buffer
+#pragma bind_buffer(name: outputBuffer, binding: 0)
+
+RWStructuredBuffer<float4> outputBuffer;
+//Texture2D<float4> outTextureBuffer; 
+
+
+[numthreads(1, 1, 1)]
+void ReadFirstPixel(uint3 id : SV_DispatchThreadID)
+{
+    /*
+    int w, h;
+    inputTexture.GetDimensions(w,h);
+
+
+    int counter = 0; 
+    for (int i = 0; i < w, i++)
+    {
+        for (int j = 0; j < h; j++) {
+            outTextureBuffer[i][j] = (float4) inputTexture.Load(int3(i, j, 0));
+            
+            //outputBuffer[counter] = (float4) inputTexture.Load(int3(i,j,0));
+            //counter++; 
+        }
+    }*/
+    
+    /*
+    // Read the color of the first pixel
+    float4 color = inputTexture.Load(int3(0, 0, 0));
+
+    // Store the color in the output buffer
+    outputBuffer[0] = color;
+    */
+
+
+
+}

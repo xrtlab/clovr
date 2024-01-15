@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <xmlConfigFilesLocation>F:/____CLEVER Testing/CLOVR V1.0/Assets/StreamingAssets\PersistentProjectSave.xml</xmlConfigFilesLocation>
+  <projectOutputLocation>C:\\CLOVR_Output</projectOutputLocation>
+  <openvrRuntimeLocation>F:/____CLEVER Testing/CLOVR V1.0/Assets/StreamingAssets\Config/actions.json</openvrRuntimeLocation>
+  <xmlQuestionnaireLocation>F:/____CLEVER Testing/CLOVR V1.0/Assets/StreamingAssets\XML_Questionnaires</xmlQuestionnaireLocation>
+  <pictureFileExtension>.jpg</pictureFileExtension>
+  <obsProfileLocation>C:\Users\Botan\AppData\Roaming\obs-studio/basic/profiles/CLEVER_OpenVR_OBS_Capture</obsProfileLocation>
+  <obsSceneLocation>C:\Users\Botan\AppData\Roaming\obs-studio/basic/scenes/VideoandMicrophoneVRCapture.json</obsSceneLocation>
+  <obsExeLocation>C:/Program Files/obs-studio/bin/64bit</obsExeLocation>
+  <projectName>Test Dataset</projectName>
+  <recordingFrameInterval>1</recordingFrameInterval>
+  <microphoneDurationSecs>60</microphoneDurationSecs>
+  <microphoneIndex>0</microphoneIndex>
+  <bufferSize>1000</bufferSize>
+  <trialCount>8</trialCount>
+</ProjectSettings>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <xmlConfigFilesLocation>C:/Users/es374245/Desktop/CLEVER V0.8.2/Assets/StreamingAssets\Config/actions.json</xmlConfigFilesLocation>
+  <projectOutputLocation>C:\CLEVER_Output</projectOutputLocation>
+  <openvrRuntimeLocation>C:/Users/es374245/Desktop/CLEVER V0.8.2/Assets/StreamingAssets\Config/actions.json</openvrRuntimeLocation>
+  <xmlQuestionnaireLocation>C:/Users/es374245/Desktop/CLEVER V0.8.2/Assets/StreamingAssets\Config/XML_Questionnaires</xmlQuestionnaireLocation>
+  <pictureFileExtension>.jpg</pictureFileExtension>
+  <projectName>Experiment 1 - Sample Project</projectName>
+  <recordingFrameInterval>10</recordingFrameInterval>
+  <microphoneDurationSecs>120</microphoneDurationSecs>
+  <microphoneIndex>0</microphoneIndex>
+  <bufferSize>1000</bufferSize>
+  <trialCount>1</trialCount>
+</ProjectSettings>

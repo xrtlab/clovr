@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Questionnaire xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <title>Please take some time for this questionnaire.</title>
+  <questionnaireName>Game Engagement Questionnaire</questionnaireName>
+  <questions>
+    <string>I felt content.</string>
+    <string>I felt skilful.</string>
+    <string>I was interested in the game's story</string>
+    <string>I thought it was fun.</string>
+    <string>I was fully occupied with the game.</string>
+    <string>I felt happy.</string>
+    <string>It gave me a bad mood.</string>
+    <string>I thought about other things.</string>
+    <string>I found it tiresome.</string>
+    <string>I felt competent.</string>
+    <string>I thought it was hard.</string>
+    <string>It was aesthetically pleasing.</string>
+    <string>I forgot everything around me.</string>
+    <string>I felt good.</string>
+    <string>I was good at it.</string>
+    <string>I felt bored.</string>
+    <string>I felt successful.</string>
+    <string>I felt imaginative.</string>
+    <string>I felt that I could explore things.</string>
+    <string>I enjoyed it.</string>
+    <string>I was fast at reaching the game's targets.</string>
+    <string>I felt annoyed.</string>
+    <string>I felt pressured.</string>
+    <string>I felt irritable.</string>
+    <string>I lost track of time.</string>
+    <string>I felt challenged.</string>
+    <string>I found it impressive.</string>
+    <string>I was deeply concentrating in the game.</string>
+    <string>I felt frustrated.</string>
+    <string>It felt like a rich experience.</string>
+    <string>I lost connection with the outside world.</string>
+    <string>I felt time pressure.</string>
+    <string>I had to put a lot of effort into it.</string>
+  </questions>
+  <subquestions>
+    <string> </string>
+  </subquestions>
+  <answers>
+    <string>0</string>
+    <string>1</string>
+    <string>2</string>
+    <string>3</string>
+    <string>4</string>
+  </answers>
+  <labels>
+    <string>Strongly Disagree</string>
+    <string>Disagree</string>
+    <string>Neutral</string>
+    <string>Agree</string>
+    <string>Strongly Agree</string>
+  </labels>
+</Questionnaire>
+ 

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <xmlConfigFilesLocation>F:\____CLEVER Testing\OpenVR Logger Outputs\Configs\Config</xmlConfigFilesLocation>
+  <projectOutputLocation>F:\____CLEVER Testing\OpenVR Logger Outputs</projectOutputLocation>
+  <openvrRuntimeLocation>F:\____CLEVER Testing\OpenVR Logger Outputs\Configs\Config</openvrRuntimeLocation>
+  <xmlQuestionnaireLocation>F:\____CLEVER Testing\OpenVR Logger Outputs\Configs\XML_Questionnaires</xmlQuestionnaireLocation>
+  <pictureFileExtension>.jpg</pictureFileExtension>
+  <projectName>Experiment 1 - Sample Project</projectName>
+  <recordingFrameInterval>10</recordingFrameInterval>
+  <microphoneDurationSecs>120</microphoneDurationSecs>
+  <microphoneIndex>0</microphoneIndex>
+  <bufferSize>1000</bufferSize>
+  <trialCount>1</trialCount>
+</ProjectSettings>

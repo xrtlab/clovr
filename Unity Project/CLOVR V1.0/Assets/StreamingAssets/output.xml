@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Questionnaire xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <title>Please take some time for this questionnaire.</title>
+  <questionnaireName>Spatial Precence Experience Scale</questionnaireName>
+  <questions>
+    <string>I felt like I was actually there in the environment of the presentation.</string>
+    <string>It seemed as though I actually took part in the action of the presentation.</string>
+    <string>It was as though my true location had shifted into the environment of the presentation.</string>
+    <string>I felt as though I was physically present in the environment of the presentation.</string>
+    <string>I experienced the environment in the presentation as though I had stepped into a different place.</string>
+    <string>I was convinced that things were actually happening around me.</string>
+    <string>I had the feeling that I was in the middle of the action rather than merely observing.</string>
+    <string>I felt like the objects in the presentation surrounded me.</string>
+    <string>I experienced both the confined and open spaces in the presentation as though I was really there.</string>
+    <string>I was convinced that the objects in the presentation were located on the various sides of my body.</string>
+    <string>The objects in the presentation gave me the feeling that I could do things with them.</string>
+    <string>I had the impression that I could be active in the environment of the presentation.</string>
+    <string>I had the impression that I could act in the environment of the presentation.</string>
+    <string>I had the impression that I could reach for the objects in the presentation.</string>
+    <string>I felt like I could move around among the objects in the presentation.</string>
+    <string>I felt like I could jump into the action.</string>
+    <string>The objects in the presentation gave me the feeling that I could actually touch them.</string>
+    <string>It seemed to me that I could do whatever I wanted in the environment of the presentation.</string>
+    <string>It seemed to me that I could have some effect on things in the presentation, as I do in real life.</string>
+    <string>I felt that I could move freely in the environment of the presentation.</string>
+  </questions>
+  <subquestions>
+    <string>Self-localization</string>
+    <string>Possible Actions</string>
+  </subquestions>
+  <answers>
+    <string>1</string>
+    <string>2</string>
+    <string>3</string>
+    <string>4</string>
+    <string>5</string>
+  </answers>
+</Questionnaire>

@@ -1,0 +1,45 @@
+<!-- Questions taken from:
+https://www.researchgate.net/publication/272427353_The_Spatial_Presence_Experience_Scale_SPES
+-->
+<?xml version="1.0" encoding="UTF-8"?>
+<survey>
+    <surveyName>Spatial Precence Experience Scale</surveyName>
+    <abbrevation>SPES</abbrevation>
+    <title>Please take some time for this questionnaire.</title>
+    <surveyQuestions>
+        <Questions>
+            <linebreaker>.</linebreaker>
+            <totalQuestionCount>20</totalQuestionCount>
+            <titles>
+                <!--Self-localization questions-->
+                I felt like I was actually there in the environment of the presentation.
+                It seemed as though I actually took part in the action of the presentation.
+                It was as though my true location had shifted into the environment of the presentation.
+                I felt as though I was physically present in the environment of the presentation.
+                I experienced the environment in the presentation as though I had stepped into a different place.
+                I was convinced that things were actually happening around me.
+                I had the feeling that I was in the middle of the action rather than merely observing.
+                I felt like the objects in the presentation surrounded me.
+                I experienced both the confined and open spaces in the presentation as though I was really there.
+                I was convinced that the objects in the presentation were located on the various sides of my body.
+                <!--Possible actions section.-->
+                The objects in the presentation gave me the feeling that I could do things with them.
+                I had the impression that I could be active in the environment of the presentation.
+                I had the impression that I could act in the environment of the presentation.
+                I had the impression that I could reach for the objects in the presentation.
+                I felt like I could move around among the objects in the presentation.
+                I felt like I could jump into the action.
+                The objects in the presentation gave me the feeling that I could actually touch them.
+                It seemed to me that I could do whatever I wanted in the environment of the presentation.
+                It seemed to me that I could have some effect on things in the presentation, as I do in real life.
+                I felt that I could move freely in the environment of the presentation.
+            </titles>
+            <ShowAllSubquestions>1</ShowAllSubquestions>
+            <subquestions> <!-- Must present all of these at same time-->
+                Self-localization,
+                Possible Actions           
+            </subquestions>
+            <answers>1,2,3,4,5</answers>
+        </Questions>
+    </surveyQuestions>
+</survey>

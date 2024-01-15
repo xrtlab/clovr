@@ -1,0 +1,302 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>OVRSharp</name>
+    </assembly>
+    <members>
+        <member name="F:OVRSharp.Application.ApplicationType.Scene">
+            <summary>
+            A 3D application that will be drawing an environment.
+            </summary>
+        </member>
+        <member name="F:OVRSharp.Application.ApplicationType.Overlay">
+            <summary>
+            An application that only interacts with overlays or the dashboard.
+            </summary>
+        </member>
+        <member name="F:OVRSharp.Application.ApplicationType.Background">
+            <summary>
+            The application will not start SteamVR. If it is not already running
+            the call with VR_Init will fail with <see cref="F:Valve.VR.EVRInitError.Init_NoServerForBackgroundApp"/>.
+            </summary>
+        </member>
+        <member name="F:OVRSharp.Application.ApplicationType.Utility">
+            <summary>
+            The application will start up even if no hardware is present. Only the IVRSettings
+            and IVRApplications interfaces are guaranteed to work. This application type is
+            appropriate for things like installers.
+            </summary>
+        </member>
+        <member name="M:OVRSharp.Application.#ctor(OVRSharp.Application.ApplicationType,System.String)">
+            <summary>
+            Instantiate and initialize a new <see cref="T:OVRSharp.Application"/>.
+            Internally, this will initialize the OpenVR API with the specified
+            <paramref name="type"/> and <paramref name="startupInfo"/>.
+            </summary>
+            
+            <param name="type"></param>
+            <param name="startupInfo"></param>
+        </member>
+        <member name="T:OVRSharp.Graphics.ICompositorAPI">
+            <summary>
+            An interface for graphics-related compositor API methods.<br/><br/>
+            
+            You can find implementations for different graphics APIs on NuGet as
+            OVRSharp.Graphics.DirectX and OVRSharp.Graphics.OpenGL. Anyone else is also
+            free to implement their own version of this for other graphics APIs and
+            publish them.
+            </summary>  
+        </member>
+        <member name="M:OVRSharp.Graphics.ICompositorAPI.GetMirrorImage(Valve.VR.EVREye)">
+            <summary>
+            Capture a screenshot of the headset view.
+            </summary>
+            <param name="eye">The eye to capture.</param>
+        </member>
+        <member name="M:OVRSharp.Math.MatrixExtension.ToHmdMatrix34_t(System.Numerics.Matrix4x4)">
+            <summary>
+            Converts a <see cref="T:System.Numerics.Matrix4x4"/> to a <see cref="T:Valve.VR.HmdMatrix34_t"/>.
+            <br/>
+            <br/>
+            From: <br/>
+            11 12 13 14 <br/>
+            21 22 23 24 <br/>
+            31 32 33 34 <br/>
+            41 42 43 44
+            <br/><br/>
+            To: <br/>
+            11 12 13 41 <br/>
+            21 22 23 42 <br/>
+            31 32 33 43
+            </summary>
+        </member>
+        <member name="M:OVRSharp.Math.MatrixExtension.ToMatrix4x4(Valve.VR.HmdMatrix34_t)">
+            <summary>
+            Converts a <see cref="T:Valve.VR.HmdMatrix34_t"/> to a <see cref="T:System.Numerics.Matrix4x4"/>.
+            <br/>
+            <br/>
+            From: <br/>
+            11 12 13 14 <br/>
+            21 22 23 24 <br/>
+            31 32 33 34
+            <br/><br/>
+            To: <br/>
+            11 12 13 XX <br/>
+            21 22 23 XX <br/>
+            31 32 33 XX <br/>
+            14 24 34 XX
+            </summary>
+        </member>
+        <member name="E:OVRSharp.Overlay.OnMouseMove">
+            <summary>
+            This event is fired when mouse movement is detected.
+            </summary>
+        </member>
+        <member name="F:OVRSharp.Overlay.PollingRate">
+            <summary>
+            The rate at which to poll for overlay events, in milliseconds.
+            </summary>
+        </member>
+        <member name="P:OVRSharp.Overlay.Handle">
+            <summary>
+            The pointer to the underlying OpenVR object for this overlay.
+            </summary>
+        </member>
+        <member name="P:OVRSharp.Overlay.TrackedDevice">
+            <summary>
+            The tracked device that the overlay is currently attached to.
+            If set to <see cref="F:OVRSharp.Overlay.TrackedDeviceRole.None"/>, the overlay
+            will switch back to absolute transform mode.
+            </summary>
+        </member>
+        <member name="P:OVRSharp.Overlay.TextureBounds">
+            <summary>
+            Sets the part of the texture to use for the overlay. UV Min
+            is the upper left corner and UV Max is the lower right corner.
+            By default overlays use the entire texture.
+            </summary>
+        </member>
+        <member name="P:OVRSharp.Overlay.MouseScale">
+            <summary>
+            Sets/gets the mouse scaling factor that is used for mouse events.
+            The actual texture may be a different size, but this is typically
+            the size of the underlying UI in pixels.
+            </summary>
+        </member>
+        <member name="P:OVRSharp.Overlay.InputMethod">
+            <summary>
+            Dashboard overlays are always <see cref="F:Valve.VR.VROverlayInputMethod.Mouse"/>. Other
+            overlays default to <see cref="F:Valve.VR.VROverlayInputMethod.None"/>, but can be set to
+            use automatic mouse interaction using this function.
+            </summary>
+        </member>
+        <member name="P:OVRSharp.Overlay.WidthInMeters">
+            <summary>
+            Sets/gets the width of the overlay quad in meters. By default overlays are rendered
+            on a quad that is 1 meter across.
+            <br/><br/>
+            Overlays are rendered at the aspect ratio of their underlying texture and texture
+            bounds. Height is a function of width and that aspect ratio. An overlay that is 1.6
+            meters wide and has a 1920x1080 texture would be 0.9 meters tall.
+            </summary>
+        </member>
+        <member name="P:OVRSharp.Overlay.Curvature">
+            <summary>
+            Use to draw overlay as a curved surface. Curvature is a percentage from (0..1] where
+            1 is a fully closed cylinder.
+            <br/>
+            For a specific radius, curvature can be computed as:
+            <code>overlay.width / (2 PI r)</code>
+            </summary>
+        </member>
+        <member name="P:OVRSharp.Overlay.Alpha">
+            <summary>
+            Sets/gets the alpha of the overlay quad. Use 1.0 for 100 percent opacity to 0.0 for 0
+            percent opacity.
+            <br/>
+            By default, overlays are rendering at 100 percent alpha (1.0).
+            </summary>
+        </member>
+        <member name="M:OVRSharp.Overlay.#ctor(System.String,System.String,System.Boolean)">
+            <summary>
+            Instantiate a new OpenVR overlay with the specified key
+            and name.
+            </summary>
+            
+            <param name="key">
+            The key to create the overlay with. Keys must
+            be globally unique and may not be longer than
+            k_unVROverlayMaxKeyLength including the terminating
+            null.
+            </param>
+            
+            <param name="name">
+            The friendly, user-visible name of the overlay.
+            When appropriate the name should be provided in
+            UTF-8 in the current system language. This name
+            may not be longer than k_unVROverlayMaxNameLength
+            including the terminating null.
+            </param>
+        </member>
+        <member name="M:OVRSharp.Overlay.#ctor(System.UInt64)">
+            <summary>
+            Wrap an existing OpenVR overlay with its handle.
+            </summary>
+            
+            <param name="overlayHandle">
+            The handle of the overlay to wrap.
+            </param>
+        </member>
+        <member name="M:OVRSharp.Overlay.StartPolling">
+            <summary>
+            Start polling for overlay events. While polling, the
+            events <see cref="E:OVRSharp.Overlay.OnMouseDown"/>, <see cref="E:OVRSharp.Overlay.OnMouseMove"/>, etc.
+            will be fired as they are received. If this overlay is already polling,
+            this method is a no-op.
+            
+            <br/><br/>
+            
+            Use <see cref="M:OVRSharp.Overlay.StopPolling"/> to stop polling for events.
+            </summary>
+        </member>
+        <member name="M:OVRSharp.Overlay.StopPolling">
+            <summary>
+            Stop polling for overlay events. If the overlay is
+            not polling, this method is a no-op.
+            
+            <br/><br/>
+            
+            Use <see cref="M:OVRSharp.Overlay.StartPolling"/> to begin polling for events.
+            </summary>
+        </member>
+        <member name="M:OVRSharp.Overlay.Show">
+            <summary>
+            Request that the OpenVR runtime displays the overlay
+            in the scene. For VR Dashboard overlays only the dashboard
+            manager is allowed to call this.
+            
+            <br/><br/>
+            
+            Use <see cref="M:OVRSharp.Overlay.Hide"/> to hide the overlay.
+            </summary>
+        </member>
+        <member name="M:OVRSharp.Overlay.Hide">
+            <summary>
+            Request that the OpenVR runtime hides the overlay
+            in the scene. For VR Dashboard overlays only the dashboard
+            manager is allowed to call this.
+            
+            <br/><br/>
+            
+            Use <see cref="M:OVRSharp.Overlay.Show"/> to show the overlay.
+            </summary>
+        </member>
+        <member name="M:OVRSharp.Overlay.Destroy">
+            <summary>
+            Destroy the overlay. When an application calls VR_Shutdown
+            all overlays created by that app are automatically destroyed.
+            </summary>
+        </member>
+        <member name="M:OVRSharp.Overlay.SetTextureFromFile(System.String)">
+            <summary>
+            Loads the specified file and sets that texture as the contents
+            of the overlay. Textures can be up to 1920x1080 in size.
+            PNG, JPG, and TGA files are supported in 24 or 32 bits.
+            </summary>
+            
+            <param name="path">
+            Path to the file. If a relative path is provided it is assumed
+            to be relative to the resource directory in the OpenVR runtime.
+            </param>
+        </member>
+        <member name="M:OVRSharp.Overlay.SetTexture(Valve.VR.Texture_t)">
+            <summary>
+            Sets an existing application-created graphics resource as the
+            texture for the overlay. The type of the pTexture depends on
+            the eTextureType parameter.
+            </summary>
+            
+            <param name="texture">
+            <see cref="T:Valve.VR.Texture_t"/> struct describing the texture
+            </param>
+        </member>
+        <member name="M:OVRSharp.Overlay.SetThumbnailTextureFromFile(System.String)">
+            <summary>
+            Loads the specified file and sets that texture as the contents
+            of the overlay's thumbnail. Textures can be up to 1920x1080 in size.
+            PNG, JPG, and TGA files are supported in 24 or 32 bits.
+            </summary>
+            
+            <param name="path">
+            Path to the file. If a relative path is provided it is assumed
+            to be relative to the resource directory in the OpenVR runtime.
+            </param>
+        </member>
+        <member name="M:OVRSharp.Overlay.SetThumbnailTexture(Valve.VR.Texture_t)">
+            <summary>
+            Sets an existing application-created graphics resource as the
+            texture for the overlay's thumbnail. The type of the pTexture depends on
+            the eTextureType parameter.
+            </summary>
+            
+            <param name="texture">
+            <see cref="T:Valve.VR.Texture_t"/> struct describing the texture
+            </param>
+        </member>
+        <member name="M:OVRSharp.Overlay.SetFlag(Valve.VR.VROverlayFlags,System.Boolean)">
+            <summary>
+            Sets or gets the specified flag for the specified overlay.
+            </summary>
+            
+            <param name="flag">Flag to set</param>
+            <param name="value">Flag value to set</param>
+        </member>
+        <member name="M:Valve.VR.OpenVR.Init(Valve.VR.EVRInitError@,Valve.VR.EVRApplicationType,System.String)">
+            Finds the active installation of vrclient.dll and initializes it 
+        </member>
+        <member name="M:Valve.VR.OpenVR.Shutdown">
+            unloads vrclient.dll. Any interface pointers from the interface are
+            invalid after this point 
+        </member>
+    </members>
+</doc>

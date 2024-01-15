@@ -1,0 +1,41 @@
+<!-- Questions are being copied over from two sources
+https://conservancy.umn.edu/bitstream/handle/11299/201892/SSQ%20Scoring.pdf?sequence=9&isAllowed=y
+https://www.tandfonline.com/doi/abs/10.1207/s15327108ijap0303_3
+-->
+<?xml version="1.0" encoding="UTF-8"?>
+<survey>
+    <surveyName>Simulator Sickness Questionnaire</surveyName>
+    <abbrevation>SSQ</abbrevation>
+    <title>Please take some time for this survey.</title>
+    <surveyQuestions>
+        <Questions>
+            <linebreaker>,</linebreaker>
+            <totalQuestionCount>16</totalQuestionCount>
+            <titles>
+                General Discomfort,
+                Fatigue,
+                Headache,
+                Eye strain,
+                Difficulty focusing,
+                Increased salivation,
+                Sweating,
+                Nausea,
+                Difficulty concentrating,
+                Fullness of head,
+                Blurred vision,
+                Dizzy (eyes open),
+                Dizzy (eyes closed),
+                Vertigo,
+                Stomach awareness,
+                Burping
+            </titles>
+            <ShowAllSubquestions>1</ShowAllSubquestions>
+            <subquestions> <!-- Must present all of these at same time-->
+                Nausea,
+                Oculuomotor,
+                Disorientation            
+            </subquestions>
+            <answers>0,1,2,3</answers>
+        </Questions>
+    </surveyQuestions>
+</survey>
