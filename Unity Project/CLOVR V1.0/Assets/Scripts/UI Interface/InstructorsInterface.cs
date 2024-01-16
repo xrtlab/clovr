@@ -95,7 +95,7 @@ namespace XRT_OVR_Grabber
         TMPro.TMP_Dropdown microphoneSelectionDropdown;
 
         [Space(10)]
-        [Header("Project Settings")]
+        [Header("Trial Settings")]
         [Space(10)]
 
         [SerializeField]
@@ -360,6 +360,7 @@ namespace XRT_OVR_Grabber
             //Handle Microphone stuff. 
             loggerManager.recordMicrophone = recordTheMicrophoneToggle.isOn;
             int microphoneTotalTime = TMPProTimerPhraser(microphoneInSeconds);
+            trialNumberField.text = loggerManager.trialNumber.ToString();
 
             int totalTime = 10;
             if(recordingTrialTime.text.Contains(":"))

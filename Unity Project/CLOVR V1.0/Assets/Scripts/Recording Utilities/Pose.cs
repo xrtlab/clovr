@@ -66,7 +66,7 @@ namespace XRT_OVR_Grabber
 
         public static string PrintHeader()
         {
-            return "Device Type and Role, Position X, Position Y, Position Z, Rotation Z, Rotation Y, Rotation Z, Rotation W, Velocity X, Velocity Y, Velocity Z, Ang. Velocity X, Ang. Velocity Y, Ang. Velocity Z";
+            return "Device Type and Role, Position X, Position Y, Position Z, Rotation X, Rotation Y, Rotation Z, Rotation W, Velocity X, Velocity Y, Velocity Z, Ang. Velocity X, Ang. Velocity Y, Ang. Velocity Z";
         }
 
         public string SendToString()

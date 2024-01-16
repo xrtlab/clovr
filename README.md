@@ -19,7 +19,7 @@ CLOVR can perform the following:
 
 ## Setup
 
-1.	Install OBS from a trusted source [LINK TO GITHUB][WEBSITE]
+1.	Install OBS from a trusted source
     a.	Install this application first to be able to record videos
 2.	Download and unpackage CLOVR in a known location
 3.	Start SteamVR. 
