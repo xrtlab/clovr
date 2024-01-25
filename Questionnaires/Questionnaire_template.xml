@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Questionnaire xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <title>Please take some time for this questionnaire.</title>
+  <questionnaireName>Template Questionnaire</questionnaireName>
+  <questions>
+    <string>Empty.</string>
+  </questions>
+  <subquestions>
+    <string>N/A</string>
+  </subquestions>
+  <answers>
+    <string>Empty</string>
+  </answers>
+  <labels>
+    <string>Empty</string>
+  </labels>
+</Questionnaire>
+ 

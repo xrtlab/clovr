@@ -52,8 +52,6 @@ Users are encouraged to develop additional Likert questionnaires using the templ
 
 The user manual for CLOVR can be downloaded in this repository. It is reccomended to look at the video below for a quick start version. 
 
-[Video]
-
 There is also a written user manual found in the /Documentation folder in this repository. 
 
 ## Referencing CLOVR
@@ -63,7 +61,7 @@ CLOVR will be published in the future and will have an associated bibtex to refe
 
 ## License and External Libraries
 
-This project is licensed under the **MIT license**. Some code snippets from other projects may have also been included, however they are also MIT open-source projects. 
+This project is licensed under the **MIT license**. Some code snippets from other projects may have also been included, however all are open-source projects. 
 
 The following are the potential sources of code:
  - Virtual Motion Capture [https://github.com/sh-akira/VirtualMotionCapture]
@@ -73,6 +71,10 @@ The following are the potential sources of code:
  - OpenVR [https://github.com/ValveSoftware/openvr]
  - Unity OpenVR Tracking [https://github.com/ValveSoftware/steamvr_unity_plugin]
  - Native Web Socket [https://github.com/endel/NativeWebSocket]
+
+I also include Unity Process Passthrough's code on a separate repository in case I require to update it in the future. 
+
+- Unity Process Passthrough [https://github.com/OvercodedStack/Unity-Process-Passthrough]
 
  ChatGPT was occasionally used for guessing or locating code API from OpenVR, however all code was written from scratch where it was used. 
 
@@ -84,8 +86,8 @@ Please file your pull requests and issues in their respective channels. As it mi
 
 The supporting authors for this project have been the following: 
 - **Esteban Segarra Martinez (University of Central Florida)** - Full development of the tool and writeup of the associated publication. 
-- **Ryan P. McMahan (University of Central Florida)** - Advised and steered suggestions to improve the tool
 - **Ayesha Malik (University of Central Florida)** - Wrote documentation, tested early prototypes, and edited the publication paper
+- **Ryan P. McMahan (University of Central Florida)** - Advised and steered suggestions to improve the tool
 
 ## Papers that have used CLOVR
 

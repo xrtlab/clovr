@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Questionnaire xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <title>Please take some time for this questionnaire.</title>
+  <questionnaireName>Simulator Sickness Questionnaire</questionnaireName>
+  <questions>
+    <string>General Discomfort</string>
+    <string>Fatigue</string>
+    <string>Headache</string>
+    <string>Eye strain</string>
+    <string>Difficulty focusing</string>
+    <string>Increased salivation</string>
+    <string>Sweating</string>
+    <string>Nausea</string>
+    <string>Difficulty concentrating</string>
+    <string>Fullness of head</string>
+    <string>Blurred vision</string>
+    <string>Dizzy (eyes open)</string>
+    <string>Dizzy (eyes closed)</string>
+    <string>Vertigo</string>
+    <string>Stomach awareness</string>
+    <string>Burping</string>
+  </questions>
+  <subquestions>
+    <string>Nausea</string>
+    <string>Oculuomotor</string>
+    <string>Disorientation</string>
+  </subquestions>
+  <answers>
+    <string>0</string>
+    <string>1</string>
+    <string>2</string>
+    <string>3</string>
+  </answers>
+  <labels>
+    <string>Strongly Disagree</string>
+    <string>Disagree</string>
+    <string>Neutral</string>
+    <string>Agree</string>
+    <string>Strongly Agree</string>
+  </labels>
+</Questionnaire>
+ 
