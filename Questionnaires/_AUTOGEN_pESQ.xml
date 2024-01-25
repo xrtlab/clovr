@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Questionnaire xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <title>Please take some time for this questionnaire.</title>
+  <questionnaireName>Preliminary Embodiment Short Questionnaire</questionnaireName>
+  <questions>
+    <string>Overall, I felt as if my body was located where I saw the virtual body to be.</string>
+    <string>The movements of the virtual body were caused by my movements.</string>
+    <string>I felt like my body was actually there in the environment</string>
+    <string>I felt like my bodily movements occurred within the environment</string>
+    <string>I felt like the environment affected my body</string>
+  </questions>
+  <subquestions>
+    <string> </string>
+  </subquestions>
+  <answers>
+    <string>1</string>
+    <string>2</string>
+    <string>3</string>
+    <string>4</string>
+    <string>5</string>
+  </answers>
+  <labels>
+    <string>I do not agree at all</string>
+    <string> </string>
+    <string> </string>
+    <string> </string>
+    <string>I fully agree</string>
+  </labels>
+</Questionnaire>
+ 
