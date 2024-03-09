@@ -337,11 +337,11 @@ namespace XRT_OVR_Grabber
                 try
                 {
                     StreamWriter writer = new StreamWriter(outputLocation, true);
-                    string posesSentToString = q.GetQuestionnaireHeader();
-                    posesSentToString += q.GetStringVer();
-                    Debug.Log(posesSentToString);
+                    string questionnairesToString = q.GetQuestionnaireHeader();
+                    questionnairesToString += q.GetStringVer();
+                    //Debug.Log(questionnairesToString);
 
-                    writer.Write(posesSentToString);
+                    writer.Write(questionnairesToString);
                     writer.Close();
                 }
                 catch (System.Exception e)
@@ -361,11 +361,11 @@ namespace XRT_OVR_Grabber
                 try
                 {
                     StreamWriter writer = new StreamWriter(outputLocation, true);
-                    string posesSentToString = q.GetQuestionnaireHeader();
-                    posesSentToString += q.GetStringVer();
-                    Debug.Log(posesSentToString);
+                    string questionnairesToString = q.GetQuestionnaireHeader();
+                    questionnairesToString += q.GetStringVer();
+                    //Debug.Log(questionnairesToString);
 
-                    writer.Write(posesSentToString);
+                    writer.Write(questionnairesToString);
                     writer.Close();
                 }
                 catch (System.Exception e)
@@ -532,8 +532,6 @@ namespace XRT_OVR_Grabber
         private void OnDestroy()
         {
             QuestionnaireEvents.ProjectInitialized.RemoveListener(_InitializeSurveyer);
-
-        
             QuestionnaireEvents.QuestionnaireButtonPressedNextQ.RemoveListener(_nextQuestionAction);
             QuestionnaireEvents.QuestionnaireSaveAll.RemoveListener(saveAllQuestionnaireResults);
             QuestionnaireEvents.QuestionnaireFinished.RemoveListener(finishTheQuestionnaire);
@@ -554,7 +552,8 @@ namespace XRT_OVR_Grabber
         public List<string> questions;
         public List<string> subquestions;
         public List<string> answers;
-        public List<string> labels; 
+        public List<string> labels;
+        public List<string> timeStamps; 
 
         //Responses are the ones given by the user. 
         //List<List<string>> storedQuestionnaires = new List<List<string>>();
@@ -589,16 +588,11 @@ namespace XRT_OVR_Grabber
         public string[] GetCurrentQuestion()
         {
             string[] values = {
-            (string) questions[questionIndex],
-            (string) ListToString(subquestions),
-            (string) ListToString(answers),
-            (string) ListToString(labels)
-
+                (string) questions[questionIndex],
+                (string) ListToString(subquestions),
+                (string) ListToString(answers),
+                (string) ListToString(labels)
             };
-
-            //Debug.Log(values[0]);
-            //Debug.Log(values[1]);
-            //Debug.Log(values[2]);
             return values; 
         }
 
@@ -628,10 +622,7 @@ namespace XRT_OVR_Grabber
                 subcategoryResponses += "," + input;
                 return;
             }*/
-            //tempStoredResponses.Add(input);
 
-            //Debug.LogWarning("Question Index:");
-            //Debug.LogWarning(questionIndex);
             if (questionIndex == 0)
             {
                 tempStoredResponses += input;
@@ -646,7 +637,6 @@ namespace XRT_OVR_Grabber
             {
                 SaveCompletedQuestionnaire();
                 QuestionnaireEvents.QuestionnaireFinished.Invoke();
-               
                 tempStoredResponses = "";
             }
         }
@@ -658,6 +648,7 @@ namespace XRT_OVR_Grabber
         public void SaveCompletedQuestionnaire()
         {
             storedQuestionnaires.Add(tempStoredResponses);
+            timeStamps.Add(DateTime.UtcNow.ToString("yyyy-MM-dd-HH-mm-ss-fff"));
             questionIndex = 0; 
         }
 
@@ -681,7 +672,7 @@ namespace XRT_OVR_Grabber
                 }
             }
 
-            return outString + "\n";
+            return outString + ",timestamp" + "\n";
         }
 
         /////////////////////////////////////////////////////////////////// These are printers for instances in the questionnaire. 
@@ -697,7 +688,7 @@ namespace XRT_OVR_Grabber
             {
                 outputValues += s;
             }
-            return outputValues + "\n";
+            return outputValues + ",timestamp" + "\n";
         }
 
         /// <summary>
@@ -731,6 +722,7 @@ namespace XRT_OVR_Grabber
         public void ClearQuestionnaire()
         {
             storedQuestionnaires.Clear();
+            timeStamps.Clear();
             tempStoredResponses = ""; 
             ///tempStoredResponses.Clear(); 
         }
@@ -803,10 +795,11 @@ namespace XRT_OVR_Grabber
                 }
                 varOut += tempVar + "\n";
             }*/
-
+            int counter = 0;
             foreach(string s in storedQuestionnaires)
             {
-                varOut += s + "\n";
+                varOut += s +"," + timeStamps[counter] + "\n";
+                counter++; 
             }
 
             return varOut;

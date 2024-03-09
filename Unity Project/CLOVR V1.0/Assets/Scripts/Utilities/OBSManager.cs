@@ -22,7 +22,7 @@ public class OBSManager : MonoBehaviour
     /// <summary> Configures OBS by setting up executable pats, profiles, scenes, and arguments.  </summary>
     public void SetupOBS()
     {
-        obsExecutable = loggingManager.OBSexecutableLocation + "/obs64.exe";
+        obsExecutable = loggingManager.OBSExecutableLocation + "/obs64.exe";
         if (!File.Exists(obsExecutable))
         {
             UnityEngine.Debug.LogError("WARNING: OBS DOES NOT EXIST, SKIPPING THIS FEATURE.");
@@ -32,7 +32,7 @@ public class OBSManager : MonoBehaviour
         string profileInput = "--profile " + "CLEVER_OpenVR_OBS_Capture"; // loggingManager.OBSProfileLocation; //Path.Combine(Application.streamingAssetsPath, " / OBS_Settings/CLEVER_OpenVR_OBS_Capture");
         string sceneInput = "--scene " + "VideoandMicrophoneVRCapture"; //loggingManager.OBSSceneLocation;// Path.Combine(Application.streamingAssetsPath, " / OBS_Settings/VideoandMicrophoneVRCapture.json");
         arguments = "--startrecording --minimize-to-tray -m " + sceneInput + " " + profileInput;//"--startrecording --scene C:\\OBS_Settings\\VideoandMicrophoneVRCapture.json --profile C:\\OBS_Settings\\Tomatoes";
-        directory = loggingManager.OBSexecutableLocation;
+        directory = loggingManager.OBSExecutableLocation;
         UPP.CreateProcess(obsExecutable, arguments, directory);
         //UPP.StoreValue(23456789);
         //UnityEngine.Debug.Log(UPP.RecallValue());
@@ -171,7 +171,7 @@ public class OBSManager : MonoBehaviour
     /// <summary> Sets new locations for OBS output files.  </summary>
     public void SetOutputLocation(string profileLocation, string newOutputLocation)
     {
-        if (!File.Exists(loggingManager.OBSexecutableLocation + "/obs64.exe"))
+        if (!File.Exists(loggingManager.OBSExecutableLocation + "/obs64.exe"))
         {
             Debug.LogError("WARNING: OBS DOES NOT EXIST, SKIPPING THIS FEATURE.");
             return;

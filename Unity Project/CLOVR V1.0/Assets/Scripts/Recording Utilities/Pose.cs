@@ -69,9 +69,47 @@ namespace XRT_OVR_Grabber
             return "Device Type and Role, Position X, Position Y, Position Z, Rotation X, Rotation Y, Rotation Z, Rotation W, Velocity X, Velocity Y, Velocity Z, Ang. Velocity X, Ang. Velocity Y, Ang. Velocity Z";
         }
 
+        //Alt.
+        public string PrintNamedHeader()
+        {
+            var devName = deviceClass + "_" + deviceRole;
+            devName = devName.ToLower();
+
+            if(devName.Contains("hmd"))
+            {
+                devName = "hmd";
+            }
+            return
+                $",{devName}_position_x,{devName}_position_y,{devName}_position_z," +
+                $"{devName}_rotation_x,{devName}_rotation_y,{devName}_rotation_z,{devName}_rotation_w," +
+                $"{devName}_velocity_x,{devName}_velocity_y,{devName}_velocity_z," +
+                $"{devName}_ang_velocity_x,{devName}_ang_velocity_Y,{devName}_ang_velocity_z";
+        }
+    
+
+        public static string PrintEmpty()
+        {
+            return ",,,,,,,,,,,,,";
+        }
+
         public string SendToString()
         {
-            return  deviceClass + " " +deviceRole + "," + 
+            return deviceClass + " " + deviceRole + "," +
+                position.x + "," + position.y + "," + position.z + "," +
+                rotation.x + "," + rotation.y + "," + rotation.z + "," + rotation.w + "," +
+                velocity.x + "," + velocity.y + "," + velocity.z + "," +
+                angularVelocity.x + "," + angularVelocity.y + "," + angularVelocity.z;
+        }
+
+
+        public static string PrintEmpty2()
+        {
+            return ",,,,,,,,,,,,";
+        }
+
+        public string SendToString2()
+        {
+            return 
                 position.x + "," + position.y + "," + position.z + "," +
                 rotation.x + "," + rotation.y + "," + rotation.z + "," + rotation.w + "," +
                 velocity.x + "," + velocity.y + "," + velocity.z + "," +
@@ -98,6 +136,8 @@ namespace XRT_OVR_Grabber
         public List<XRT_OVR_Grabber.Pose> poses;
         public List<ControllerInteraction> interactions;
         public ControllerInteraction interaction;
+        public string devicePattern;
+        public List<int> devicePatternIndex = new List<int>(); 
 
         //Overloading for similar actions. 
         public PoseInteractionLog(List<XRT_OVR_Grabber.Pose> _poses, ControllerInteraction _interaction)
@@ -111,5 +151,110 @@ namespace XRT_OVR_Grabber
             poses = _poses;
             interactions = _interaction;
         }
+
+        //Interaction printer for the header per row. 
+        public string ObtainInteractionPattern()
+        {
+            string headerOutput = "";
+
+            var analogDigitalPattern = interactions[0].GetActionsDigitalAnalog();
+            var actionsPattern = interactions[0].GetActionPattern();
+            var devicePattern = interactions[0].GetDevicePattern();
+
+
+            int counterADPattern = 0;
+            foreach (string device in devicePattern)
+            {
+                foreach(string action in actionsPattern)
+                {
+                    //Analog or digital header output. 
+                    if (analogDigitalPattern[counterADPattern] == 'a')
+                        headerOutput += ControllerInteraction.PrintInteractionHeaderAnalog(device, action);
+                    else
+                        headerOutput += ControllerInteraction.PrintInteractionHeaderDigital(device, action);
+
+                    counterADPattern++;
+                }
+            }
+                //asss aaad addd dada
+
+
+                //ddda dadd ddad ddda 
+                //dadd ddad ddda dadd 
+                //ddad ddda dadd ddad
+                //ddda dadd ddad ddda 
+                //dadd ddad ddda dadd 
+                //ddad ddda dadd ddad
+                
+                ////ddda dadd ddad 
+                /// ddda dadd ddad 
+                /// ddda dadd ddad
+                /// ddda dadd ddad
+
+            return headerOutput;
+        }
+
+        //foreach (ControllerInteraction action in interactions)
+        //Debug.Log(pattern);
+        //foreach (char c in pattern)
+        //{
+        //    if (c == 'a')
+        //    {
+        //        headerOutput += ControllerInteraction.PrintInteractionHeaderAnalog();
+        //    }
+        //    else
+        //    {
+        //        headerOutput += ControllerInteraction.PrintInteractionHeaderDigital();
+        //    }
+        //}
+
+        public string PrintPoseHeader()
+        {
+            string outVal = "";
+
+            foreach(Pose p in poses)
+            {
+                outVal += p.PrintNamedHeader();
+            }
+
+            return outVal;
+        }
+
+        public void ReorderPosesList(List<int> order)
+        {
+            List<XRT_OVR_Grabber.Pose> outputList = new List<XRT_OVR_Grabber.Pose>();
+
+            //Reorders the locations of output values depending on a given index array to sort them out. 
+            if(order.Count == poses.Count)
+            {
+                foreach(int i in order)
+                {
+                    outputList.Add(poses[i]);
+                }
+                poses = outputList;
+            }
+        }
+
+        //public void SetDeviceIndexPattern(List<int> _list)
+        //{
+        //    devicePatternIndex.Clear(); 
+        //    foreach(int i in _list)
+        //    {
+        //        devicePatternIndex.Add(i);
+        //    }
+        //}
+
+
+
+        //public void SetDevicePattern(string pattern)
+        //{
+        //    devicePattern = pattern;
+        //}
+
+        ////The currently arranged setup for devices. 
+        //public string GetDevicePattern()
+        //{
+        //    return devicePattern;
+        //}
     }
 }

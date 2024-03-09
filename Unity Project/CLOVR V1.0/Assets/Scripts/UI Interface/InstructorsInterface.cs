@@ -4,7 +4,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Events; 
+using UnityEngine.Events;
+
+using System.Runtime.InteropServices;
+
 namespace XRT_OVR_Grabber
 {
     public partial class InstructorsInterface : MonoBehaviour
@@ -94,6 +97,7 @@ namespace XRT_OVR_Grabber
         [SerializeField]
         TMPro.TMP_Dropdown microphoneSelectionDropdown;
 
+
         [Space(10)]
         [Header("Trial Settings")]
         [Space(10)]
@@ -111,10 +115,35 @@ namespace XRT_OVR_Grabber
         TMPro.TMP_InputField questionnaireExportLocation; 
 
         [SerializeField]
-        TMPro.TMP_InputField trialNumberField; 
+        TMPro.TMP_InputField trialNumberField;
 
         [SerializeField]
         TMPro.TMP_InputField projectNameField;
+
+        [SerializeField]
+        TMPro.TMP_InputField participantUID;
+
+        [SerializeField]
+        TMPro.TMP_InputField techniqueName; 
+
+        [Space(10)]
+        [Header("Recording Settings")]
+        [Space(10)]
+
+
+        [SerializeField]
+        TMPro.TMP_Dropdown dropdownReferenceUniverse;
+
+        [SerializeField]
+        TMPro.TMP_InputField refreshRateHz;
+
+        [SerializeField]
+        Toggle toggleRefreshRate;
+
+        [SerializeField]
+        Toggle toggleUseDefaultSteamVRBindings; 
+
+
 
         [Space(10)]
         [Header("HMD Preview Sections")]
@@ -141,16 +170,7 @@ namespace XRT_OVR_Grabber
 
 
 
-        /// <summary> Initializes refrences to other components. Called when script instance is being loaded <summary>
-        private void Awake()
-        {
-            loggerManager = GameObject.Find("LoggingManger").GetComponent<LoggingManagerAPI>();
-            ovrtManagerInstance = GameObject.Find("OVRT_Manager").GetComponent<OVRT.OVRT_Manager>();
-            surveyInterface = GameObject.Find("Dashboard_Interface").GetComponent<SurveyInterface>();
-            SetupDropdownUI();
-            _recordingStopped += StopRecordingToggle;
-            //imageFixer = new ImageFlipper();
-        }
+
 
         /// <summary> Configures the dropdown element based on avaialable questionaires <summary>
         void SetupDropdownUI()
@@ -187,14 +207,6 @@ namespace XRT_OVR_Grabber
         {
             loggerManager.enablePictureCapture = imageRecordingToggle.isOn;
         }
-
-        //public void UI__ToggleOpenVRDetails()// I don't think we even need this, this should be a 
-        //{
-        //    ///loggerManager.enableMicrophoneWavExport = exportOpenVRDetailsToggle.isOn; ????
-
-
-        //    //loggerManager
-        //}
 
         public void UI__ToggleQuestionnaireExport()
         {
@@ -309,7 +321,26 @@ namespace XRT_OVR_Grabber
         {
             loggerManager.projectName = projectNameField.text;
             loggerManager.outputFolder = outputFileField.text;
-            loggerManager.trialNumber = int.Parse(trialNumberField.text);
+
+            //Rework block.
+            loggerManager.participantUID = participantUID.text;
+            loggerManager.techniqueName = techniqueName.text;
+
+            try
+            {
+                loggerManager.trialNumber = int.Parse(trialNumberField.text);
+            }
+            catch
+            {
+                UnityEngine.Debug.LogError("Error with trial number inputted!");
+                trialNumberField.text = loggerManager.trialNumber.ToString();
+            }
+
+            //TMPro.TMP_InputField participantUID;
+
+            //[SerializeField]
+            //TMPro.TMP_InputField techniqueName;
+
         }
 
         /// <summary> Loads project settings from an XML file <summary>
@@ -322,6 +353,10 @@ namespace XRT_OVR_Grabber
             openVRXDeviceConfigsField.text = loggerManager.openVRRuntimeConfig;
             xmlProjectSettings.text = loggerManager.xmlFileForProjectSettings;
             projectNameField.text = loggerManager.projectName;
+
+            participantUID.text = loggerManager.participantUID;
+            techniqueName.text = loggerManager.techniqueName;
+
             //microphoneIndexField.text = loggerManager.overrideMicIndex.ToString();
             //microphoneInSeconds.text = loggerManager.microphoneDurationInSecs.ToString();
         }
@@ -350,59 +385,6 @@ namespace XRT_OVR_Grabber
             microphoneIndexField.text = "";
 
             optionsPanel.SetActive(false);
-        }
-
-        /// <summary> Initiates the recording process <summary>
-        public void UI___StartRecording()
-        {
-            loggerManager.enableRecordingTimer = enableRecordingTimer.isOn;
-            loggerManager.microphoneIndex = microphoneSelectionDropdown.value;
-            //Handle Microphone stuff. 
-            loggerManager.recordMicrophone = recordTheMicrophoneToggle.isOn;
-            int microphoneTotalTime = TMPProTimerPhraser(microphoneInSeconds);
-            trialNumberField.text = loggerManager.trialNumber.ToString();
-
-            int totalTime = 10;
-            if(recordingTrialTime.text.Contains(":"))
-            {
-                try
-                {
-                    System.TimeSpan time = new System.TimeSpan();
-                    System.TimeSpan.TryParse(recordingTrialTime.text, out time);
-                    totalTime = (int)time.TotalSeconds;
-                }
-                catch
-                {
-                    Debug.LogWarning("Invalid time format.");
-                }
-            }
-            else
-            {
-                totalTime = int.Parse(recordingTrialTime.text);
-            }
-
-
-            if (enableRecordingTimer.isOn)
-                loggerManager.microphoneDurationInSecs = totalTime; 
-            else
-                loggerManager.microphoneDurationInSecs = microphoneTotalTime;
-
-            //Regular startup ops. 
-            loggerManager.StartRecording();
-            questionnaireExportLocation.text = loggerManager.GetQuestionnaireOutputLocation();
-            isRecordingToggle.isOn = loggerManager.isRecording;
-        }
-
-        /// <summary> Terminates the recording process <summary>
-        public void UI___StopRecording()
-        {
-            //This is to export the project settings. Yes I know it's jank.
-            if(exportOpenVRDetailsToggle.isOn)
-            {
-                loggerManager._ExportProjectProperties(); 
-            }
-            loggerManager.StopRecording();
-            isRecordingToggle.isOn = loggerManager.isRecording;
         }
 
         private void StopRecordingToggle()
@@ -436,7 +418,6 @@ namespace XRT_OVR_Grabber
             loggerManager.UI_StoreStartupProjectSettingsToDefault();
             Application.Quit();
         }
-
 
         public void UI_ToggleRecordingTimer()
         {
@@ -522,8 +503,118 @@ namespace XRT_OVR_Grabber
             field.text = hr + ":" + min + ":"
                 + sec;
         }
+       
 
 
+
+/////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary> Initiates the recording process <summary>
+        public void UI___StartRecording()
+        {
+            //Prerecording time delayer
+            while(true)
+            {
+                if (Time.realtimeSinceStartup > realtimeDelayTime)
+                    break;
+            }
+
+            //Start recording section. 
+            loggerManager.enableRecordingTimer = enableRecordingTimer.isOn;
+            loggerManager.microphoneIndex = microphoneSelectionDropdown.value;
+
+            //Handle Microphone stuff. 
+            loggerManager.recordMicrophone = recordTheMicrophoneToggle.isOn;
+            int microphoneTotalTime = TMPProTimerPhraser(microphoneInSeconds);
+            trialNumberField.text = loggerManager.trialNumber.ToString();
+
+
+            int totalTime = 10;
+
+            //Handle Universe Reference frame
+            switch(dropdownReferenceUniverse.value)
+            {
+                case 0:
+                    loggerManager.trackingUniverse = Valve.VR.ETrackingUniverseOrigin.TrackingUniverseSeated;
+                    break;
+                case 1:
+                    loggerManager.trackingUniverse = Valve.VR.ETrackingUniverseOrigin.TrackingUniverseStanding;
+                    break;
+                case 2:
+                    loggerManager.trackingUniverse = Valve.VR.ETrackingUniverseOrigin.TrackingUniverseRawAndUncalibrated;
+                    break;
+            }
+            //Use if enabled. 
+            loggerManager.useDefaultSteamVRBindings = toggleUseDefaultSteamVRBindings.isOn;
+
+
+            if(toggleRefreshRate.isOn)
+            {
+                //Handle manual refresh rate.
+                loggerManager.recordRateInterval = int.Parse(refreshRateHz.text);
+                loggerManager.useDefaultSteamVRRefreshRate = false;
+            }
+            else
+            {
+                loggerManager.useDefaultSteamVRRefreshRate = true;
+            }
+
+            if (recordingTrialTime.text.Contains(":"))
+            {
+                try
+                {
+                    System.TimeSpan time = new System.TimeSpan();
+                    System.TimeSpan.TryParse(recordingTrialTime.text, out time);
+                    totalTime = (int)time.TotalSeconds;
+                }
+                catch
+                {
+                    Debug.LogWarning("Invalid time format.");
+                }
+            }
+            else
+            {
+                totalTime = int.Parse(recordingTrialTime.text);
+            }
+
+            //Enable manual microphone. 
+            if (enableRecordingTimer.isOn)
+                loggerManager.microphoneDurationInSecs = totalTime;
+            else
+                loggerManager.microphoneDurationInSecs = microphoneTotalTime;
+
+            //Regular startup ops. 
+            loggerManager.StartRecording();
+            questionnaireExportLocation.text = loggerManager.GetQuestionnaireOutputLocation();
+            isRecordingToggle.isOn = loggerManager.isRecording;
+        }
+
+
+
+
+        float realtimeDelayTime = 0;
+        float delayTime = 1.0f; 
+        /// <summary> Terminates the recording process <summary>
+        public void UI___StopRecording()
+        {
+            //This is to export the project settings. Yes I know it's jank.
+            if (exportOpenVRDetailsToggle.isOn)
+            {
+                loggerManager._ExportProjectProperties();
+            }
+            loggerManager.StopRecording();
+            isRecordingToggle.isOn = loggerManager.isRecording;
+
+            realtimeDelayTime = Time.realtimeSinceStartup + delayTime;
+        }
+
+        public void UI__RandomizeParticipantUID()
+        {
+            var UID = loggerManager.ProvideRandomUID();
+            participantUID.text = UID; 
+        }
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary> Initializes some UI fields and settings  <summary>
         private void Start()
@@ -531,9 +622,23 @@ namespace XRT_OVR_Grabber
             outputFileField.text = loggerManager.outputFolder;
             projectNameField.text = loggerManager.projectName;
             trialNumberField.text = loggerManager.trialNumber.ToString();
+            participantUID.text = loggerManager.participantUID;
+            techniqueName.text = loggerManager.techniqueName;
+
             isRecordingToggle.isOn = loggerManager.isRecording;
             UI__ReloadandResetMicrophoneDropdown();
             optionsPanel.SetActive(false);
+        }
+
+        /// <summary> Initializes refrences to other components. Called when script instance is being loaded <summary>
+        private void Awake()
+        {
+            loggerManager = GameObject.Find("LoggingManger").GetComponent<LoggingManagerAPI>();
+            ovrtManagerInstance = GameObject.Find("OVRT_Manager").GetComponent<OVRT.OVRT_Manager>();
+            surveyInterface = GameObject.Find("Dashboard_Interface").GetComponent<SurveyInterface>();
+            SetupDropdownUI();
+            _recordingStopped += StopRecordingToggle;
+            //imageFixer = new ImageFlipper();
         }
 
         private void OnEnable()
@@ -565,7 +670,7 @@ namespace XRT_OVR_Grabber
                 hr = "0" + timeFormatted.Hours.ToString();
             else
                 hr = timeFormatted.Hours.ToString();
-
+  
             if (timeFormatted.Minutes < 10)
                 min = "0" + timeFormatted.Minutes.ToString();
             else

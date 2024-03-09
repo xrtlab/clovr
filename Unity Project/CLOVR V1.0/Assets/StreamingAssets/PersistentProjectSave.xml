@@ -8,10 +8,10 @@
   <obsProfileLocation>C:\Users\Botan\AppData\Roaming\obs-studio/basic/profiles/CLEVER_OpenVR_OBS_Capture</obsProfileLocation>
   <obsSceneLocation>C:\Users\Botan\AppData\Roaming\obs-studio/basic/scenes/VideoandMicrophoneVRCapture.json</obsSceneLocation>
   <obsExeLocation>C:/Program Files/obs-studio/bin/64bit</obsExeLocation>
-  <projectName>Test Dataset</projectName>
-  <recordingFrameInterval>1</recordingFrameInterval>
+  <projectName>No Game</projectName>
+  <recordingFrameInterval>72</recordingFrameInterval>
   <microphoneDurationSecs>60</microphoneDurationSecs>
   <microphoneIndex>0</microphoneIndex>
-  <bufferSize>1000</bufferSize>
-  <trialCount>10</trialCount>
+  <bufferSize>3000</bufferSize>
+  <trialCount>9</trialCount>
 </ProjectSettings>

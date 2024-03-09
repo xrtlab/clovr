@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+
 namespace XRT_OVR_Grabber
 {
     //A record for a controller interaction
     public class ControllerInteraction
     {
-
         //Section for Digital Action Data
         public InputDigitalActionData_t dataRecord = new InputDigitalActionData_t();
         public float timeCollected = 0.0f;
@@ -18,6 +18,10 @@ namespace XRT_OVR_Grabber
         private string[] headerSet;
         private bool active = false;
         private string emptyRow = "";
+        public int totalActions = 0;
+        public string actionsAnalogDigitalPattern = "";
+        List<string> headerActionPattern = new List<string>();
+        List<string> headerDevicePattern = new List<string>();
 
         //Section for Analog Action Data
         InputAnalogActionData_t analogData = new InputAnalogActionData_t();
@@ -31,12 +35,17 @@ namespace XRT_OVR_Grabber
         ulong handle = 0;
 
         // Variable to differenciate between the two data types. 
-        bool isAnalog = false; 
-
+        public bool isAnalog = false;
 
         public ControllerInteraction()
         {
             headerSet = new string[] { };
+        }
+
+        public ControllerInteraction(bool _isAnalog)
+        {
+            headerSet = new string[] { };
+            isAnalog = _isAnalog;
         }
 
         public bool IsActive()
@@ -49,8 +58,7 @@ namespace XRT_OVR_Grabber
             dataRecord = _data;
             timeCollected = _time;
             controllerIndex = _controller;
-            active = true;
-             
+            active = true;             
         }
 
         public ControllerInteraction(InputDigitalActionData_t _data, float _time, int _frameCollected, string _controller, string _index)
@@ -60,7 +68,6 @@ namespace XRT_OVR_Grabber
             controllerIndex = _controller;
             controllerActionPath = _index;
             active = true;
-             
         }
 
         public ControllerInteraction(InputAnalogActionData_t data, float _time, int _frameCollected, string name, bool _isLeft, ulong _handle, string _controller, string _actionsetPath)
@@ -84,6 +91,32 @@ namespace XRT_OVR_Grabber
         public int GetFrameRecorded()
         {
             return (int)timeCollected;
+        }
+
+        public void SetActionsDigitalAnalog(string _analogDigitalPattern, List<string> _deviceInputs, List<string> _actions)
+        {
+            actionsAnalogDigitalPattern = _analogDigitalPattern;
+            headerActionPattern = _actions;
+            headerDevicePattern = _deviceInputs;
+        }
+
+        public List<string> GetActionPattern()
+        {
+            return headerActionPattern;
+        }
+        public List<string> GetDevicePattern()
+        {
+            return headerDevicePattern;
+        }
+
+        public string GetActionsDigitalAnalog()
+        {
+            return actionsAnalogDigitalPattern;
+        }
+
+        public void SetNumOfActions(int _numActions)
+        {
+            totalActions = _numActions;
         }
 
         public void SetHeaderActionSet(string[] input)
@@ -127,6 +160,37 @@ namespace XRT_OVR_Grabber
             return outValue + ",Active Origin #,Update Time,State Changed To,Current State,X,Y,Z,dX,dY,dZ";
         }
 
+        public static string PrintInteractionHeaderAnalog(string _deviceName, string name)
+        {
+            string outString = "";
+            var deviceName = _deviceName + "_" + name;
+            deviceName = deviceName.ToLower();
+            outString += $",{deviceName}_x,{deviceName}_y,{deviceName}_z,{deviceName}_dx,{deviceName}_dy,{deviceName}_dz";
+            return outString;
+        }
+        public static string PrintInteractionHeaderDigital(string _deviceName, string name)
+        {
+            string outString = "";
+            var deviceName = _deviceName + "_" + name;
+            deviceName = deviceName.ToLower();
+
+            outString += $",{deviceName}_current_state,{deviceName}_state_changed";
+            return outString;
+        }
+
+        public static string PrintInteractionHeaderAnalog()
+        {
+            string outString = "";
+            outString += ",Action, Action Type, Input Source, X, Y, Z, dX, dY, dZ";
+            return outString;
+        }
+        public static string PrintInteractionHeaderDigital()
+        {
+            string outString = "";
+            outString += ",Action, Action Type, Input Source, Current State, State Changed";
+            return outString;
+        }
+
         public string PrintEmptyLine()
         {
             return emptyRow + ",,,,";
@@ -144,10 +208,82 @@ namespace XRT_OVR_Grabber
         }
 
 
+
+#pragma DEBUG_INTERACTIONS
+        public string PrintEmptyLineDefault2()
+        {
+            string outValue = "";
+
+
+#if DEBUG_INTERACTIONS
+            if (isAnalog)
+            {
+                //outValue += "0,0,0,0,0,0,0,0,0";
+                outValue += "0,0,0,0,0,0";
+            }
+            else
+            {
+                outValue += "1,1";
+            }
+
+#else
+            if (isAnalog)
+            {
+                outValue += ",,,,,";
+            }
+            else
+            {
+                outValue += ",";
+            }
+#endif
+            return outValue;
+        }
+
+        //public string PrintEmptyLineDefault2()
+        //{
+        //    string outValue = "";
+        //    if (isAnalog)
+        //    {
+        //        //outValue += "0,0,0,0,0,0,0,0,0";
+        //        outValue += ",,,,,,,,";
+        //    }
+        //    else
+        //    {
+        //        outValue += ",,,,";
+        //    }
+
+        //    return outValue;
+        //}
+
         //Printing the header. 
         public string PrintHeader()
         {
             return headerActionSet + ",Active Origin #,Update Time,State Changed To,Current State"; //"Controller, Active Origin #, Update Time, State Changed To, Current State";
+        }
+
+        public string SendToString2()
+        {
+            string outValue = "";
+            if (headerActionSet.Length > 0)
+            {
+                // Printout of the interaction. 
+                if (isAnalog)
+                {
+                    outValue +=  //controllerIndex + "," + "analog" + "," + controllerActionPath + "," +
+                         analogX.ToString() + "," + analogY.ToString() + "," + analogZ.ToString() + ","
+                        + deltaAnalogX.ToString() + "," + deltaAnalogY.ToString() + "," + deltaAnalogZ.ToString();
+                }
+                else
+                {
+                    outValue += dataRecord.bChanged.ToString() + "," + dataRecord.bState.ToString();//controllerIndex + "," + "digital" + "," + controllerActionPath + "," +
+
+                }
+                return outValue;
+            }
+            else
+            {
+                return PrintEmptyLineDefault2();
+            }
         }
 
         public string SendToString()
@@ -155,6 +291,7 @@ namespace XRT_OVR_Grabber
             string outValue = "";
             if (headerActionSet.Length > 0)
             {
+                //Fiter through all the devices to Determine what device is it...?
                 foreach (string action in headerSet)
                 {
                     if (controllerActionPath == action)
