@@ -24,6 +24,12 @@ namespace XRT_OVR_Grabber
 		public string outputFolder = "";
 		[SerializeField]
 		public string projectName = "";
+        
+        [SerializeField]
+        public string participantUID = "0000000"; //7 number UID
+        [SerializeField]
+        public string techniqueName = "Default"; 
+
 		[SerializeField]
 		public int trialNumber = 1;
 		[SerializeField]
@@ -58,25 +64,24 @@ namespace XRT_OVR_Grabber
         public string OBSSceneLocation = "";
 
         [SerializeField]
-        public string OBSexecutableLocation = "C:/Program Files/obs-studio/bin/64bit";
-
-
+        public string OBSExecutableLocation = "C:/Program Files/obs-studio/bin/64bit";
 
         [Space(10)]
         [Header("Rate Settings")]
         [Space(10)]
 
-
         /// <summary> In frames  - ~~Every 10 fixed frames ~= 1 second of recoding.~~ - No longer used as a metric for image recording. </summary>
         [SerializeField]
-        public float recordRateInterval = 10.0f;  
+        public float recordRateInterval = 10.0f;
+
+        [SerializeField]
+        public float pictureRecordRate = 1.0f; 
 
 
         ///Buffer for the amount of records to keep in the buffers to store before moving to store the next buffer. </summary>
         [SerializeField]
         int bufferSize = 1000;
         public int numberOfRecordedSessions = 0;
-
 
         [Space(10)]
         [Header("Microphone Settings")]
@@ -130,8 +135,16 @@ namespace XRT_OVR_Grabber
         public bool enableOBSVideoCapture = true;
 
         [SerializeField]
-        public GameObject pivotSpawnLocation; 
+        public GameObject pivotSpawnLocation;
 
+        [SerializeField]
+        public ETrackingUniverseOrigin trackingUniverse;
+
+        [SerializeField]
+        public bool useDefaultSteamVRBindings = false;
+
+        [SerializeField]
+        public bool useDefaultSteamVRRefreshRate = true; 
 
         public enum UpdateMode
         {
@@ -165,6 +178,7 @@ namespace XRT_OVR_Grabber
         List<ControllerInteraction> controllerRecords = new List<ControllerInteraction>();           /// <summary> Special note that these are BUFFERS, meaning they should be progressively emptied and added as the record moves. <summary> 
         List<List<XRT_OVR_Grabber.Pose>> poseRecordsBuffer = new List<List<XRT_OVR_Grabber.Pose>>(); /// <summary> Special note that these are BUFFERS, meaning they should be progressively emptied and added as the record moves. <summary>                                /// <summary> Special note that these are BUFFERS, meaning they should be progressively emptied and added as the record moves. <summary> 
         List<PoseInteractionLog> interactionPoseBuffer = new List<PoseInteractionLog>();             /// <summary> Special note that these are BUFFERS, meaning they should be progressively emptied and added as the record moves. <summary> 
+        List<SkeletonBone> skeletonBoneBuffer = new List<SkeletonBone>(); 
 
         /// <summary> Initializes the properties of the class with values from the provided 'ProjectSettings' object </summary>
         private void SetupProjectSettingsClass(ProjectSettings _inSettings)
@@ -184,6 +198,34 @@ namespace XRT_OVR_Grabber
 
             QuestionnaireEvents.ProjectInitialized.Invoke();
         }
+
+        public string ProvideRandomUID()
+        {
+            string UID = "-000001";
+            var folders = Directory.GetDirectories(outputFolder);
+
+            while(true)
+            {
+                int randInt = Random.RandomRange(0, 9999999);
+                UID = randInt.ToString();
+                bool matchFound = false;
+                foreach(string directory in folders)
+                {
+                    if (directory.Contains(UID))
+                    {
+                        matchFound = true;
+                        break;
+                    }
+                }
+
+                if(!matchFound)
+                    break;
+            }
+
+            participantUID = UID;
+            return UID;
+        }
+
 
         /// <summary> Validates and sets up neccesary file paths for project. </summary>
         private void CheckProjectPaths()
@@ -237,7 +279,7 @@ namespace XRT_OVR_Grabber
                 trialNumber,
                 OBSProfileLocation,
                 OBSSceneLocation,
-                OBSexecutableLocation);
+                OBSExecutableLocation);
         }
 
         /// <summary> Saves the current project settings to an XML file. If no file is specified, it defaults to saving to a file named "PersistentProjectSave.xml" in the "Resources" directory within the application's persistentDataPath' </summary> 
@@ -297,25 +339,31 @@ namespace XRT_OVR_Grabber
             
         }
 
-        /// Buffer adders. 
-        public void _AddControllerRecord(ControllerInteraction _record)
-        {
-            if (isRecording && !pauseRecording)
-                controllerRecords.Add(_record);
-        }
+        ///// Buffer adders. 
+        //public void _AddControllerRecord(ControllerInteraction _record)
+        //{
+        //    if (isRecording && !pauseRecording)
+        //        controllerRecords.Add(_record);
+        //}
 
-        /// <summary> Buffer adder <summary> 
-        public void AddPoseRecord(List<XRT_OVR_Grabber.Pose> _record)
-        {
-            if (isRecording && !pauseRecording)
-                poseRecordsBuffer.Add(_record);
-        }
+        ///// <summary> Buffer adder <summary> 
+        //public void AddPoseRecord(List<XRT_OVR_Grabber.Pose> _record)
+        //{
+        //    if (isRecording && !pauseRecording)
+        //        poseRecordsBuffer.Add(_record);
+        //}
 
         /// <summary> If recording is ongoing and not paused, adds the provided pose interaction record to the interactionPoseBuffer. </summary>
         public void AddInteractionPoseRecord(PoseInteractionLog _record)
         {
             if (isRecording && !pauseRecording)
                 interactionPoseBuffer.Add(_record);
+        }
+
+        public void AddSkeletonRecord(SkeletonBone jointBones)
+        {
+            if (isRecording && !pauseRecording)
+                skeletonBoneBuffer.Add(jointBones);
         }
 
         /// <summary> Retains current records <summary> 
@@ -345,6 +393,7 @@ namespace XRT_OVR_Grabber
         public void StartRecording()
         {
             timeStartedRecording = Time.frameCount;
+            interactionPoseBuffer.Clear();
             if (isRecording)
             {
                 Debug.LogWarning("Recording already in progress!!!");
@@ -353,7 +402,7 @@ namespace XRT_OVR_Grabber
 
             if (outputFolder != "" && projectName != "" && trialNumber > 0)
             {
-                FileIO.UpdateLoggerDetails(fileExtension, outputFolder, projectName, trialNumber);
+                FileIO.UpdateLoggerDetails(fileExtension, outputFolder, projectName, trialNumber,participantUID,techniqueName);
                 FileIO.timeStartedLogging = timeStartedRecording;
                 FileIO.DirectoryCreator();
 
@@ -472,7 +521,6 @@ namespace XRT_OVR_Grabber
                 }
             }
 
-
             if (isRecording)
             {
                 //Only check our OBS flags and stuff if we're actually OBS recording. 
@@ -498,7 +546,7 @@ namespace XRT_OVR_Grabber
                 {
                     var tempBuffer = interactionPoseBuffer.GetRange(0, bufferSize);
                     interactionPoseBuffer.RemoveRange(0, bufferSize);
-                    FileIO.RunSave(tempBuffer);
+                    FileIO.RunSave(tempBuffer, connectedDevices);
                 }
                 recordingSuccess = true;
             }
@@ -507,7 +555,7 @@ namespace XRT_OVR_Grabber
                 Debug.Log("Post recording");
                 var tempBuffer = interactionPoseBuffer.GetRange(0, interactionPoseBuffer.Count);
                 interactionPoseBuffer.RemoveRange(0, interactionPoseBuffer.Count);
-                FileIO.RunSave(tempBuffer);
+                FileIO.RunSave(tempBuffer, connectedDevices);
             }
             else if(fileIsDone)
             {
@@ -517,7 +565,7 @@ namespace XRT_OVR_Grabber
             else if (interactionPoseBuffer.Count == 0 && !isRecording)
             {
                 fileIsDone = true; 
-                FileIO.FixDeviceHeader(connectedDevices); 
+                //FileIO.FixDeviceHeader(connectedDevices); 
             }
         }
 
@@ -526,13 +574,7 @@ namespace XRT_OVR_Grabber
         private int connectedDevices = 0; 
         public void UpdateTotalDevicesConnected(int num)
         {
-            //If for some reason we got a higher number during testing, update this number. 
-            if (num > connectedDevices)
-                connectedDevices = num;
-
-            //Send zero to reset the counter
-            if (num == 0)
-                connectedDevices = 0; 
+            connectedDevices = num;
         }
 
 
@@ -593,7 +635,7 @@ namespace XRT_OVR_Grabber
         {
             //obsWebsocket = new OBSWebSocketWatcher();
             readerAndWriterXML = new XML_Reader();
-            _storingControllerRecord += _AddControllerRecord;
+            //_storingControllerRecord += _AddControllerRecord;
             _headsetOnHead += _TogglePauseRecording; // I don't think we're using this anyt
             obsManager.SetLoggerManager(this);
             //Try to load the default settings for the project.
@@ -620,14 +662,14 @@ namespace XRT_OVR_Grabber
         /// <summary> Unity lifecycle method that gets called when the object becomes inactive. It removes event listeners. </summary>
         private void OnDisable()
         {
-            QuestionnaireEvents.AddControllerRecord.RemoveListener(_storingControllerRecord);
+            //QuestionnaireEvents.AddControllerRecord.RemoveListener(_storingControllerRecord);
             QuestionnaireEvents.HeadsetStatusChange.RemoveListener(_headsetOnHead); 
         }
 
         /// <summary> Unity lifecycle method that gets called when the object becomes active. It adds event listeners. </summary>
         private void OnEnable()
         {
-            QuestionnaireEvents.AddControllerRecord.AddListener(_storingControllerRecord);
+            //QuestionnaireEvents.AddControllerRecord.AddListener(_storingControllerRecord);
             QuestionnaireEvents.HeadsetStatusChange.AddListener(_headsetOnHead); 
 
         }

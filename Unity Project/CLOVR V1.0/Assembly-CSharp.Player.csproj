@@ -104,8 +104,11 @@
     <Compile Include="Assets\OVRLay\Scripts\OpenVR\OVR_Utils\OVR_Utils.cs" />
     <Compile Include="Assets\Scripts\Utilities\UnityProcessPassthrough.cs" />
     <Compile Include="Assets\OVRLay\Scripts\OpenVR\OVR_Handler\OVR_Handler.cs" />
+    <Compile Include="Assets\Scripts\RuntimeUtilities\SkeletonHandData.cs" />
+    <Compile Include="Assets\Scripts\RuntimeUtilities\SteamVR2Datastructs.cs" />
     <Compile Include="Assets\OVRLay\Scripts\OpenVR\OVR_Handler\OVR_Handler_Events.cs" />
     <Compile Include="Assets\OVRLay\Scripts\OpenVR Tracking\Runtime\OVRT\OVRT_RenderModel.cs" />
+    <Compile Include="Assets\Scripts\RuntimeUtilities\SteamVRInteractionsReader.cs" />
     <Compile Include="Assets\Scripts\UI Interface\SurveyInterface.cs" />
     <Compile Include="Assets\Scripts\Recording Utilities\ProjectSettingsUtils.cs" />
   </ItemGroup>

@@ -20,6 +20,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using Valve.VR;
 using UnityEngine.Rendering;
+using System.Linq;
 
 /// <summary>
 ///  Reference Section used for getting a texture from GPU to CPU and out to a file in near-realtime and low latency cost. 
@@ -99,7 +100,10 @@ namespace OVRT
         private List<ulong> _actionHandles = new List<ulong>();
 
         [SerializeField]
-        XRT_OVR_Grabber.SteamVR2Input interactionManager; 
+        XRT_OVR_Grabber.SteamVR2Input interactionManager;
+
+        [SerializeField]
+        XRT_OVR_Grabber.SteamVRInteractionsReader interactionManagerRework; 
 
         //Getting input interface from the OpenVR interface. 
         public static VRActiveActionSet_t[] rawActiveActionSetArray;
@@ -300,18 +304,33 @@ namespace OVRT
 
         /// This version of the update loop will run in corotine instead.
         /// 
-        int rateHz = 72; 
-        int frameCollected = 0; 
+        //while (currentTick < rateHz)
 
+        //for(int i = 0; i < rateHz; i++)
+        //{
+        //    UpdatePoses();
+        //    yield return null;
+        //}
+        //frameCollected++;
+        //lockProcess = false
+
+        float rateHz = 72; 
+        int frameCollected = 0;
+        bool stopUpdateThread = false;
         IEnumerator UpdatePosesAndLog()
         {
-            //while (currentTick < rateHz)
-            for(int i = 0; i < rateHz; i++)
+            float localDeltaTime = 0.0f;
+            localDeltaTime = Time.time;
+            while (true)
             {
+                yield return new WaitForSecondsRealtime(localDeltaTime - Time.time);
                 UpdatePoses();
-                yield return null;
+                localDeltaTime += updateRate;
+
+                if (stopUpdateThread)
+                    break;
             }
-            frameCollected++;
+            lockProcess = false; 
         }
 
         private void DebugCall()
@@ -330,6 +349,9 @@ namespace OVRT
              
         }
 
+        bool lockProcess = false;
+        bool lockPictureProcess = false;
+        float updateRate = 1.0f; 
         float pictureRecordTime = 0.0f;
         /// <summary>  
         ///  Fixed update does not sample multiple times per second, it spams multiple requests per frame, but it becomes unsafe to sample multiple times per second. 
@@ -337,21 +359,31 @@ namespace OVRT
         /// <summary>
         private void FixedUpdate()
         {
+            updateRate = 1.0f / rateHz;
             if (updateMode == UpdateMode.FixedUpdate)
             {
-                if (timePassed > 1.0f)
+                //Get the thread running once and stop any random restarts. 
+                if (lockProcess)
                 {
-                    if (loggingManager.isRecording && !loggingManager.pauseRecording)
-                    {
-                        StartCoroutine(UpdatePosesAndLog());
-                    }
-                    timePassed = 0.0f;
+                    StartCoroutine(UpdatePosesAndLog());
+                    lockProcess = true;
                 }
-                else
-                {
-                    timePassed += Time.deltaTime;
-                    //return;
-                }
+
+
+                //if (timePassed > 1.0f)
+                //{
+                //    if (loggingManager.isRecording && !loggingManager.pauseRecording && !lockProcess)
+                //    {
+                //        lockProcess = true;
+                //        StartCoroutine(UpdatePosesAndLog());
+                //    }
+                //    timePassed = 0.0f;
+                //}
+                //else
+                //{
+                //    timePassed += Time.deltaTime;
+                //    //return;
+                //}
                 //UpdatePoses();
 
                 if (loggingManager.isRecording && !loggingManager.pauseRecording)
@@ -374,39 +406,105 @@ namespace OVRT
         /// <summary> If restart button is pressed, or in update mode, it initializes the system.  <summary>
         private void Update()
         {
+            //Dynamically setting the refresh rate. 
+            if (loggingManager.useDefaultSteamVRRefreshRate)
+            { 
+                ETrackedPropertyError errorOut = new ETrackedPropertyError();
+                ETrackedDeviceProperty props = ETrackedDeviceProperty.Prop_DisplayFrequency_Float;
+                var refreshRate = _vrSystem.GetFloatTrackedDeviceProperty((uint)0, props, ref errorOut); //Set this to the HMD
+                if (refreshRate > 0)
+                {
+                    rateHz = (float)refreshRate;
+                }
+            }
+            else
+            {
+                rateHz = loggingManager.recordRateInterval; 
+            }
+
+            //Update the refresh rate
+            updateRate = 1.0f / rateHz;
+            pictureRecordTime = 1.0f / loggingManager.pictureRecordRate;
+
             if (updateMode == UpdateMode.Update)
             {
-                if (timePassed > 1.0f)
+                //Get the thread running once and stop any random restarts. 
+                if (!lockProcess)
                 {
-                    if (loggingManager.isRecording && !loggingManager.pauseRecording)
-                    {
-                        StartCoroutine(UpdatePosesAndLog());
-                    }
-                    timePassed = 0.0f;
+                    StartCoroutine(UpdatePosesAndLog());
+                    lockProcess = true;
                 }
                 else
                 {
-                    //This simply puts down a regular interval of poses but will not be recorded nor is reccomended to sample from. 
-                    UpdatePoses();
-                    timePassed += Time.deltaTime;
+                    //UpdatePoses();
                 }
 
-                if (loggingManager.isRecording && !loggingManager.pauseRecording && loggingManager.enablePictureCapture)
+                if (!lockPictureProcess)
                 {
-                    if (pictureRecordTime > rateLimit)
-                    {
-                        StartCoroutine(RealTimeSaveTexture2(leftEyeTexture, "leftEye/"));
-                        StartCoroutine(RealTimeSaveTexture2(rightEyeTexture, "rightEye/"));
-                        pictureRecordTime = 0.0f;
-                    }
-                    else
-                    {
-                        pictureRecordTime += Time.deltaTime;
-                        return;
-                    }
+                    StartCoroutine(PictureThread());
+                    lockPictureProcess = true;
                 }
+
+                //if (timePassed > 1.0f)
+                //{
+                //    if (loggingManager.isRecording && !loggingManager.pauseRecording)
+                //    {
+                //        StartCoroutine(UpdatePosesAndLog());
+                //    }
+                //    timePassed = 0.0f;
+                //}
+                //else
+                //{
+                //    //This simply puts down a regular interval of poses but will not be recorded nor is reccomended to sample from. 
+                //    UpdatePoses();
+                //    timePassed += Time.deltaTime;
+                //}
+
+
+
+
+
+                //if (pictureRecordTime > rateLimit)
+                //{
+                //    StartCoroutine(RealTimeSaveTexture2(leftEyeTexture, "leftEye/"));
+                //    StartCoroutine(RealTimeSaveTexture2(rightEyeTexture, "rightEye/"));
+                //    pictureRecordTime = 0.0f;
+                //}
+                //else
+                //{
+                //    pictureRecordTime += Time.deltaTime;
+                //    return;
+                //}
+
             }
         }
+
+        //Picture refresh thread. 
+        IEnumerator PictureThread()
+        {
+            float localDeltaTime = 0.0f;
+            localDeltaTime = Time.time;
+            while (true)
+            {
+                yield return new WaitForSecondsRealtime(localDeltaTime - Time.time);
+                if (loggingManager.isRecording && !loggingManager.pauseRecording && loggingManager.enablePictureCapture)
+                {
+                    Debug.Log("Picture before");
+                    StartCoroutine(RealTimeSaveTexture2(leftEyeTexture, "leftEye/"));
+                    StartCoroutine(RealTimeSaveTexture2(rightEyeTexture, "rightEye/"));
+                    Debug.Log("Picture after");
+                }
+                //UpdatePoses();
+                localDeltaTime += pictureRecordTime;
+
+                if (stopUpdateThread)
+                    break;
+            }
+            lockPictureProcess = false;
+        }
+
+
+
         /// <summary>  <summary>
         private void LateUpdate()
         {
@@ -466,7 +564,6 @@ namespace OVRT
         //private int updateHzRateLimiter = 0;
         [SerializeField]
         private float rateLimit = 10.0f;
-        int totalDevicesConnected = 0;
         /// <summary> Updates poses of VR devies, processes VR events, and handles recording related tasks of recording is enabled  <summary>
         private void UpdatePoses()
         {
@@ -493,7 +590,7 @@ namespace OVRT
                 {
                     case EVREventType.VREvent_TrackedDeviceActivated:
                         OVRT_Events.TrackedDeviceConnected.Invoke((int)vrEvent.trackedDeviceIndex, true);
-                        loggingManager.UpdateTotalDevicesConnected(totalDevicesConnected);
+                        //loggingManager.UpdateTotalDevicesConnected(totalDevicesConnected);
                         break;
                     case EVREventType.VREvent_TrackedDeviceDeactivated:
                         OVRT_Events.TrackedDeviceConnected.Invoke((int)vrEvent.trackedDeviceIndex, false);
@@ -519,45 +616,31 @@ namespace OVRT
                         break;
                 }
             }
-
-            //Dynamically setting the refresh rate. 
-            ETrackedPropertyError errorOut = new ETrackedPropertyError();
-            ETrackedDeviceProperty props = ETrackedDeviceProperty.Prop_DisplayFrequency_Float;
-            var refreshRate = _vrSystem.GetFloatTrackedDeviceProperty((uint)0, props, ref errorOut); //Set this to the HMD
-            if (refreshRate > 0)
-            {
-                rateHz = (int) refreshRate;
-            }
-
-
             _vrSystem.GetDeviceToAbsoluteTrackingPose(trackingUniverse, predictedSecondsToPhotonsFromNow, _poses);
-
+            
             XRT_OVR_Grabber.Pose[] _loggedPoses = new XRT_OVR_Grabber.Pose[_poses.Length];
             OVRT_Events.NewPoses.Invoke(_poses);
 
             //Recording Loop, only enabled if its enabled. 
             List<XRT_OVR_Grabber.Pose> actualPoses = new List<XRT_OVR_Grabber.Pose>();
 
-
-            totalDevicesConnected = 0;
             for (uint i = 0; i < _poses.Length; i++)
             {
                 //Pose referencePose;
                 var pose = _poses[i];
-                if (pose.bDeviceIsConnected && pose.bPoseIsValid)
+                //if (pose.bDeviceIsConnected && pose.bPoseIsValid)
+
+                //Checks if we don't have an invalid device and records. 
+                if (_vrSystem.GetTrackedDeviceClass(i) != ETrackedDeviceClass.Invalid)
                 {
-                    totalDevicesConnected++;
                     float collectTime = 0;
                     float timeAtFrameCollect = Time.realtimeSinceStartup;
-                    
-
                     var transposedPose = new OVRT_Utils.RigidTransform(_poses[i].mDeviceToAbsoluteTracking);
+
+                    //To check if we are recording.
                     if (loggingManager.recordingSuccess)
                     {
-                        
-                        if(lockTime)
-                        {
-                        }
+                        if(lockTime){}
                         else
                         {
                             startTime = timeAtFrameCollect;
@@ -570,8 +653,6 @@ namespace OVRT
                         startTime = timeAtFrameCollect;
                     }
                     collectTime = (timeAtFrameCollect - startTime);
-
-
                     XRT_OVR_Grabber.Pose logPose = new XRT_OVR_Grabber.Pose(_poses[i], transposedPose.pos, transposedPose.rot, frameCollected, collectTime);
                     _loggedPoses[i] = logPose;
 
@@ -588,6 +669,7 @@ namespace OVRT
                         _loggedPoses[i].SetDeviceRole(role.ToString("G"));
                     }
                     _loggedPoses[i].SetDeviceClass(deviceClass.ToString("G"));
+
                     actualPoses.Add(_loggedPoses[i]);
 
                     
@@ -611,21 +693,143 @@ namespace OVRT
             }
             if (loggingManager.firstPassInitialization)
             {
-                loggingManager.UpdateTotalDevicesConnected(totalDevicesConnected);
+                //Should be more reliable than trying to find active devices. 
+                loggingManager.UpdateTotalDevicesConnected(GetConnectedDeviceCount());
+                //interactionManagerRework.DumpStartingDataAndStartRecording();
                 loggingManager.firstPassInitialization = false;
             }
 
+
+            //record = ReorderList(record);
+            var record = new XRT_OVR_Grabber.PoseInteractionLog(actualPoses, interactionManagerRework.GetLastInteractions());
             if (loggingManager.recordingSuccess)
             {
-                loggingManager.AddInteractionPoseRecord(new XRT_OVR_Grabber.PoseInteractionLog(actualPoses, interactionManager.GetLastInteractions()));
+                //We create the index order through get connected device count if we don't have a count already. 
+                if(indexOrder.Count != actualPoses.Count)      
+                    GetConnectedDeviceCount();
+                //Reorders based on {HMD, LEFT HAND,RIGHT HAND}
+                record.ReorderPosesList(indexOrder);
+
+                loggingManager.AddInteractionPoseRecord(record);
+                //loggingManager.AddInteractionPoseRecord(new XRT_OVR_Grabber.PoseInteractionLog(actualPoses, interactionManager.GetLastInteractions()));
             }
             else
             {
                 //Ugly hack but works for now.
                 frameCollected = 0;
             }
-
         }
+
+
+
+
+
+        //The order of connected devices to SteamVR.
+        string devicePattern = ""; 
+
+        /// <summary>
+        /// Just returns the amount of connected devices. Use this to start up how many devices are connected.
+        /// 
+        /// Copilot suggestion, seems very boiler-plately 
+        /// </summary>
+        /// <returns></returns>
+        public int GetConnectedDeviceCount()
+        {
+            //Device pattern output.
+            devicePattern = "";
+
+            if (_vrSystem == null)
+            {
+                return 0;
+            }
+            var count = 0;
+
+            for (uint i = 0; i < OpenVR.k_unMaxTrackedDeviceCount; i++)
+            {
+                var deviceClass = _vrSystem.GetTrackedDeviceClass(i);
+                if (deviceClass != ETrackedDeviceClass.Invalid)
+                {
+                    var deviceRole = _vrSystem.GetControllerRoleForTrackedDeviceIndex((uint)i);
+                    if (i == 0)
+                    {
+                        devicePattern += deviceRole + "_" + deviceClass;
+                    }
+                    else
+                    {
+                        devicePattern += "," + deviceRole + "_" + deviceClass;
+                    }
+                    count++;
+                }
+            }
+            CreateDeviceIndexOrder(devicePattern);
+            return count;
+        }
+
+        List<int> indexOrder = new List<int>();
+
+        void CreateDeviceIndexOrder(string deviceOrder)
+        {
+            var order = deviceOrder.Split(",");
+
+            List<string> preferredOrder = new List<string>() { "HMD", "LeftHand", "RightHand" };
+
+            
+            //Find duplicates and rename. 
+            for (int i = 0; i < order.Length - 1; i++)
+            {
+                var device = order[i];
+                int counter = 0; 
+                foreach(string s in order)
+                {
+                    if(device == s)
+                    {
+                        var newName = device + "_" + counter.ToString();
+                        while (true)
+                        {
+                            if(order.Contains(newName))
+                            {
+                                counter++;
+                                newName = device + "_" + counter.ToString();
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        order[i] = newName;
+                    }
+                }
+            }
+
+
+            //foreach (string s in order)
+            //{
+            //    foreach(string dup in order)
+            //    {
+            //        if()
+            //    }
+            //}
+
+
+
+
+            List<string> outputDeviceOrder = new List<string>(order);
+
+
+            
+
+            Dictionary<string, int> originalIndices = outputDeviceOrder.Select((item, index) => new { item, index }).ToDictionary(pair => pair.item, pair => pair.index);
+            StringComparator customCompare = new StringComparator(preferredOrder, originalIndices);
+            outputDeviceOrder.Sort(customCompare);
+
+            indexOrder.Clear();
+            foreach(string device in outputDeviceOrder)
+            {
+                indexOrder.Add(originalIndices[device]);
+            }
+        }
+
+
 
         float startTime = 0.0f;
         bool  lockTime = false; 
@@ -727,6 +931,7 @@ namespace OVRT
             {
                 string timeStamp = DateTime.UtcNow.ToString("yyyy-MM-dd-HH-mm-ss-fff");
                 string outputLocation = loggingManager.GetPictureLocationStorage() + "leftEye/" + timeStamp + loggingManager.fileExtension;
+                //string outputLocation = loggingManager.GetPictureLocationStorage() + "leftEye/" + timeStamp;
                 Texture2D Destination = new Texture2D(request.width, request.height, TextureFormat.RGBA32, false);  // Create CPU texture array
 
                 // Copy the data
@@ -736,7 +941,7 @@ namespace OVRT
                 byte[] bytesOut;
                 Destination.Apply();
                 //Destination = InvertAndMirrorImage(Destination);
-
+                //bytesOut = Destination.GetRawTextureData();
                 if (loggingManager.fileExtension == ".png")
                     bytesOut = Destination.EncodeToPNG();
                 else
@@ -754,6 +959,7 @@ namespace OVRT
             {
                 string timeStamp = DateTime.UtcNow.ToString("yyyy-MM-dd-HH-mm-ss-fff");
                 string outputLocation = loggingManager.GetPictureLocationStorage() + "rightEye/" + timeStamp + loggingManager.fileExtension;
+                //string outputLocation = loggingManager.GetPictureLocationStorage() + "rightEye/" + timeStamp;
                 Texture2D Destination = new Texture2D(request.width, request.height, TextureFormat.RGBA32, false);  // Create CPU texture array
 
                 // Copy the data
@@ -764,7 +970,7 @@ namespace OVRT
                 Destination.Apply();
 
                 //Destination = InvertAndMirrorImage(Destination);
-
+                //bytesOut = Destination.GetRawTextureData();
                 if (loggingManager.fileExtension == ".png")
                     bytesOut = Destination.EncodeToPNG();
                 else
@@ -801,6 +1007,10 @@ namespace OVRT
             }
             return tex;
         }
+
+
+
+
 
         /// <summary> Updates tracker bindings <summary>
         private void UpdateSteamVrTrackerBindings()
@@ -852,6 +1062,49 @@ namespace OVRT
             }
         }
     }
+
+
+
+    class StringComparator : IComparer<string>
+    {
+        private readonly HashSet<string> preferredOrder;
+        private readonly Dictionary<string, int> originalIndices;
+
+        public StringComparator(IEnumerable<string> _inputOrder, Dictionary<string, int> _orgIndexes)
+        {
+            this.preferredOrder = new HashSet<string>(_inputOrder, StringComparer.OrdinalIgnoreCase);
+            this.originalIndices = _orgIndexes;
+        }
+
+        public int Compare(string x, string y)
+        {
+            bool xIsSpecial = preferredOrder.Contains(x);
+            bool yIsSpecial = preferredOrder.Contains(y);
+
+            if (xIsSpecial && yIsSpecial)
+            {
+                // If both x and y are special, maintain their original order
+                return 0;
+            }
+            else if (xIsSpecial)
+            {
+                // x is special, so it comes before y
+                return -1;
+            }
+            else if (yIsSpecial)
+            {
+                // y is special, so it comes before x
+                return 1;
+            }
+            else
+            {
+                // Neither x nor y is special, use default string comparison
+                return string.Compare(x, y, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+    }
+
+
 }
 
 

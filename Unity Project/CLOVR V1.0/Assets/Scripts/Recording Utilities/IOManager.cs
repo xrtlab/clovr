@@ -11,7 +11,9 @@ namespace XRT_OVR_Grabber
 	{
 		public string fileExtension;
 		string outputFolder;
-		string projectName; 
+		string projectName;
+		string partUID;
+		string techniqueName;
 		int trialNumber;
 		public float timeStartedLogging;
 		public string currentProjectOutput = ""; 
@@ -22,10 +24,9 @@ namespace XRT_OVR_Grabber
 		public string storageLocPictures;
 		public string storageLocQuestionnaire; 
 		public string storageLocPoseAndInteractions;
+		public string storageLocSkeletons;
 		public string storageLocMicrophone;
 		public string storageLocVideo; 
-
-		
 		public string storageLocProjectProperties;
 		public string storageOutputLocationMicrophone;
 
@@ -39,17 +40,27 @@ namespace XRT_OVR_Grabber
 			trialNumber = trialNum;
         }
 		/// <summary> Updates file extension, output folder, project name, and trial number.  </summary>
-		public void UpdateLoggerDetails(string fE, string outFolder, string projName, int trialNum)
+		public void UpdateLoggerDetails(string fE, string outFolder, string projName, int trialNum, string _participantUID, string _techniqueName)
         {
 			fileExtension = fE;
 			outputFolder = outFolder;
 			projectName = projName;
 			trialNumber = trialNum;
+			partUID = _participantUID;
+			techniqueName = _techniqueName;
+
 		}
+
+
+
 		/// <summary> Sets up and verifies directories for storing output data. Returns true if successful. </summary>
 		public bool DirectoryCreator()
         {
-			var outputLocation = outputFolder + "/Data/" + projectName + "_" + trialNumber + "/";
+			var outputLocation = outputFolder + "/Data/" + 
+				projectName + "_" + partUID + "_" + techniqueName + "_" + trialNumber + "/";
+
+
+
 			VerifyOrCreateDirectory(outputLocation);
 			string timeStamp = DateTime.UtcNow.ToString("yyyy-MM-dd-HH-mm-ss-fff");		
 			currentProjectOutput = outputLocation;
@@ -57,10 +68,10 @@ namespace XRT_OVR_Grabber
 			//Create and set pose and interaction location
 			storageLocPoseAndInteractions = Path.Combine(outputLocation, "Poses");
 			VerifyOrCreateDirectory(storageLocPoseAndInteractions);
+			storageLocSkeletons = Path.Combine(storageLocPoseAndInteractions, "Skeleton_Data_" + timeStamp + ".csv");
 			storageLocPoseAndInteractions = Path.Combine(storageLocPoseAndInteractions, "Poses_and_Interactions_" + timeStamp + ".csv");
-					
 
-		    //Create and set questionnaire location.
+			//Create and set questionnaire location.
 			storageLocQuestionnaire			= Path.Combine(outputLocation, "Questionnaires");  //"questionnaire_"  + timeStamp;
 			VerifyOrCreateDirectory(storageLocQuestionnaire);
 			storageLocQuestionnaire			= Path.Combine(storageLocQuestionnaire, timeStamp + "_");
@@ -118,131 +129,24 @@ namespace XRT_OVR_Grabber
 			return storageLocVideo;
         }
 
-		/// <summary> An IEnumerator for saving pose data in a seperate thread.  </summary>
-		IEnumerator SavePosesThreading(List<XRT_OVR_Grabber.Pose[]> poseBuffer)
+
+		public async Task<bool> SaveSkeletonDataThread(List<SkeletonBone> skeletonPoses)
         {
-			var outputLocation = storageLocPoses;
-			Debug.Log("Save poses thread");
-			try
-			{
-				StreamWriter writer = new StreamWriter(outputLocation, true);
-				string posesSentToString = "";
-				string poseStringlet = "";
-				foreach (XRT_OVR_Grabber.Pose[] pose_set in poseBuffer)
-				{
-					poseStringlet = "";
-					foreach (XRT_OVR_Grabber.Pose p in pose_set)
-					{
-						poseStringlet += p.SendToString();
-					}
-					posesSentToString += poseStringlet + "\n";
-				}
-				writer.Write(posesSentToString);
-				writer.Close();
-			}
-			catch (System.Exception e)
-			{
-				Debug.LogError(e);
-			}
-			return poseBuffer.GetEnumerator(); 
-		}
-
-		/// <summary> An asynchronous task for saving pose data  </summary>
-		public async Task<bool> SavePosesThread(List<List<XRT_OVR_Grabber.Pose>> poseBuffer)
-		{
-			var outputLocation = storageLocPoses;
-			Debug.Log("Save poses thread");
-			//Debug.Log(storageLocPoses);
-			//Debug.Log(poseBuffer[0]);
-            try
+			//Output location for the file
+			string outputLocation = storageLocSkeletons;
+			bool fileExists = File.Exists(outputLocation);
+			string header = ""; 
+			
+			if(!fileExists)
             {
-				StreamWriter writer = new StreamWriter(outputLocation,true);
+				//header = 
+            }
 
-				string posesSentToString = "";
-				string poseStringlet = ""; 
-				foreach(List<XRT_OVR_Grabber.Pose> pose_set in poseBuffer)
-				{
-					poseStringlet = "";
-					foreach (XRT_OVR_Grabber.Pose p in pose_set)
-                    {
-						poseStringlet += "," + p.SendToString();
-                    }
-					posesSentToString += poseStringlet + "\n";
-				}
-				writer.Write(posesSentToString);
-				writer.Close();
-            }
-			catch (System.Exception e)
-            {
-				Debug.LogError(e);
-            }
+
+
 
 			return true; 
 		}
-
-		/// <summary> Saves both poses and interaction data asynchronously. The number of poses in the starting pose will be the number of headers that will be printed out as well as information avaliable to the recording API. </summary>
-		public async Task<bool> SavePosesAndInteractionsThread(List<List<XRT_OVR_Grabber.Pose>> poseBuffer, List<ControllerInteraction> interactionBuffer)
-        {
-			string outputLocation = storageLocPoseAndInteractions;
-			Debug.Log(outputLocation); 
-			string header = "Frame,Time Collected,";
-
-			if (!File.Exists(outputLocation))
-            {
-				header += ControllerInteraction.PrintHeaderDefault();
-				List<XRT_OVR_Grabber.Pose> poseList = poseBuffer[0];
-				for (int i = 0; i < poseList.Count; i++)
-				{
-					//XRT_OVR_Grabber.Pose p = poseList[i];
-					header += "," + XRT_OVR_Grabber.Pose.PrintHeader();
-				}
-				header += "\n";
-			}
-			List<int> activeList = new List<int>();
-			foreach (ControllerInteraction c in interactionBuffer)
-			{
-				activeList.Add(c.GetFrameRecorded());
-			}
-			try
-			{
-				StreamWriter writer = new StreamWriter(outputLocation, true);
-				string posesSentToString = header;
-				string poseStringlet = "";
-				int interactionCounter = 0;
-				for(int i = 0; i < poseBuffer.Count; i++)
-                {
-					poseStringlet = "";
-					List<XRT_OVR_Grabber.Pose> pose_set = poseBuffer[i];
-					poseStringlet += pose_set[0].GetFrameRecorded() + ",";//Prints the frame this item was collected at. 
-					poseStringlet += pose_set[0].GetTimeRecorded() + ",";
-					if (activeList.Contains(i))
-					{
-						poseStringlet += interactionBuffer[interactionCounter].SendToString();
-						interactionCounter++; 
-					}
-                    else
-                    {
-						poseStringlet += ControllerInteraction.PrintEmptyLineDefault();
-                    }
-					foreach (XRT_OVR_Grabber.Pose pose in pose_set)
-					{
-						poseStringlet += "," + pose.SendToString(); 
-						//Debug.Log(poseStringlet);
-					}
-					poseStringlet += "\n";
-					posesSentToString += poseStringlet; 
-				}
-			//	Debug.Log(posesSentToString);
-				writer.Write(posesSentToString);
-				writer.Close();
-			}
-			catch (System.Exception e)
-			{
-				Debug.LogError(e);
-			}
-
-			return true;
-        }
 
 		/// <summary> The number of poses in the starting pose will be the number of headers that will be printed out as well as information avaliable to the recording API. </summary>
 		public async Task<bool> SavePosesAndInteractionsThread(List<PoseInteractionLog> posesAndInteractions)
@@ -282,7 +186,7 @@ namespace XRT_OVR_Grabber
 					string poseStringlet = "";
 					var poses = record.poses;
 					poseStringlet += poses[0].GetFrameRecorded() + ",";//Prints the frame this item was collected at. 
-					poseStringlet += poses[0].GetTimeRecorded() + ",";
+					poseStringlet += poses[0].GetTimeRecorded()  + ",";
 
 					if(record.interactions.Count > 0)
                     {
@@ -321,63 +225,166 @@ namespace XRT_OVR_Grabber
 			}
             finally
             {
-				posesAndInteractions = null; // .Clear();
+				posesAndInteractions = null;
             }
 
 			return true;
 		}
 
 
-		/// <summary> Saves interaction data </summary>
-		IEnumerator SaveInteractionsThreading(List<ControllerInteraction> interactionBuffer)
-        {
-			string outputLocation = storageLocInteractions;
-			Debug.Log(outputLocation);
-			Debug.Log(interactionBuffer.Count);
-			try
-			{
-				StreamWriter writer = new StreamWriter(outputLocation, true);
-				string interactionsSentToString = "";
-				foreach (ControllerInteraction interaction in interactionBuffer)
-				{
-					interactionsSentToString += interaction.SendToString() + "\n";
-				}
-				Debug.Log(interactionsSentToString);
-				writer.Write(interactionsSentToString);
-				writer.Close();
-			}
-			catch (System.Exception e)
-			{
-				Debug.LogError(e);
-			}
-			return interactionBuffer.GetEnumerator();
-        }
+		string[] preferredDeviceOrder = { "HMD","LeftHand","RightHand" };
 
-		/// <summary> Saves interaction data </summary>
-		public async Task<bool> SaveInteractionsThread(List<ControllerInteraction> interactionBuffer)
+		/// <summary> The number of poses in the starting pose will be the number of headers that will be printed out as well as information avaliable to the recording API. </summary>
+		public async Task<bool> SavePosesAndInteractionsThread(List<PoseInteractionLog> posesAndInteractions, int deviceCount)
 		{
-			Debug.Log("Save interactions thread");
-			Debug.Log(interactionBuffer[0]);
-			string outputLocation = storageLocInteractions;
-			//Debug.Log(outputLocation);
+			//Output location for the file
+			string outputLocation = storageLocPoseAndInteractions;
+			bool fileExists = File.Exists(outputLocation);
+
+			//Appending the frame and time collected time stamps. 
+			string header = "";
+
+
+			// Timestamp, Active devices, <Device poses>, Interactions, <Interactions in that timestamp>
+			//Data output to file. 
 			try
 			{
 				StreamWriter writer = new StreamWriter(outputLocation, true);
-
-				string interactionsSentToString = "";
-				foreach (ControllerInteraction interaction in interactionBuffer)
+				string outputToWriter = "";
+				
+				//Check if the file exists, if it doesn't create the header and append. 
+				if (!fileExists)
 				{
-					interactionsSentToString += interaction.SendToString() + "\n";
+					header += "timestamp,number_of_devices";
+
+					//Dynamic Pose header. 
+					header += posesAndInteractions[0].PrintPoseHeader();
+
+
+					header += ",number_of_interactions";
+
+					//Need to update this function in order to just print the relevant controllers, not every device. 
+					//header += ControllerInteraction.PrintHeaderDefault();
+					foreach(PoseInteractionLog p in posesAndInteractions)
+                    {
+						if(p.interactions.Count == 0)
+                        {
+							continue;
+                        }
+						else
+                        {
+							header += p.ObtainInteractionPattern();
+							break;
+                        }
+                    }
+					//header += posesAndInteractions[0].ObtainInteractionPattern();
+
+					header += "\n";
 				}
-				writer.Write(interactionsSentToString); 
+				//If the file already existed, we shouldn't add another header to the same file. 
+				if (!fileExists)
+					outputToWriter = header;
+
+
+				foreach (PoseInteractionLog record in posesAndInteractions)
+				{
+					string poseStringlet = "";
+					var poses = record.poses;
+					//poseStringlet += poses[0].GetFrameRecorded() + ",";//Prints the frame this item was collected at. 
+					poseStringlet += poses[0].GetTimeRecorded() + ",";
+					poseStringlet += deviceCount;
+                    for (int i = 0; i < deviceCount; i++)
+                    {
+                        if (i < poses.Count)
+                        {
+                            poseStringlet += "," + poses[i].SendToString2();
+                        }
+                        else
+                        {
+                            poseStringlet += "," + Pose.PrintEmpty2();
+
+                        }
+                    }
+                    poseStringlet += "," + record.interactions.Count;
+
+					//Interaction Block.
+					foreach (ControllerInteraction action in record.interactions)
+                    {
+						poseStringlet += "," + action.SendToString2();
+					}
+
+					//Per record export.
+					outputToWriter += poseStringlet + "\n";
+				}
+
+				//	Debug.Log(posesSentToString);
+				writer.Write(outputToWriter);
 				writer.Close();
 			}
 			catch (System.Exception e)
 			{
 				Debug.LogError(e);
 			}
-			return true; 
+			finally
+			{
+				posesAndInteractions = null; // .Clear();
+			}
+
+			return true;
 		}
+
+
+
+		///// <summary> Saves interaction data </summary>
+		//IEnumerator SaveInteractionsThreading(List<ControllerInteraction> interactionBuffer)
+		//      {
+		//	string outputLocation = storageLocInteractions;
+		//	Debug.Log(outputLocation);
+		//	Debug.Log(interactionBuffer.Count);
+		//	try
+		//	{
+		//		StreamWriter writer = new StreamWriter(outputLocation, true);
+		//		string interactionsSentToString = "";
+		//		foreach (ControllerInteraction interaction in interactionBuffer)
+		//		{
+		//			interactionsSentToString += interaction.SendToString() + "\n";
+		//		}
+		//		Debug.Log(interactionsSentToString);
+		//		writer.Write(interactionsSentToString);
+		//		writer.Close();
+		//	}
+		//	catch (System.Exception e)
+		//	{
+		//		Debug.LogError(e);
+		//	}
+		//	return interactionBuffer.GetEnumerator();
+		//      }
+
+		///// <summary> Saves interaction data </summary>
+		//public async Task<bool> SaveInteractionsThread(List<ControllerInteraction> interactionBuffer)
+		//{
+		//	Debug.Log("Save interactions thread");
+		//	Debug.Log(interactionBuffer[0]);
+		//	string outputLocation = storageLocInteractions;
+		//	//Debug.Log(outputLocation);
+		//	try
+		//	{
+		//		StreamWriter writer = new StreamWriter(outputLocation, true);
+
+		//		string interactionsSentToString = "";
+		//		foreach (ControllerInteraction interaction in interactionBuffer)
+		//		{
+		//			interactionsSentToString += interaction.SendToString() + "\n";
+		//		}
+		//		writer.Write(interactionsSentToString); 
+		//		writer.Close();
+		//	}
+		//	catch (System.Exception e)
+		//	{
+		//		Debug.LogError(e);
+		//	}
+		//	return true; 
+		//}
 
 		/// <summary> This method will be used to save the results obtained using the survey add-on </summary> 
 		public bool SaveSurveyResults()
@@ -387,25 +394,51 @@ namespace XRT_OVR_Grabber
 			return status; 
         }
 
-		/// <summary> Handles saving of poses. </summary>
-		public void RunSave(List<List<XRT_OVR_Grabber.Pose>> poses)
-        {
-            try
-            {
-				Task.Run(() => SavePosesThread(poses));
-			}
-			catch (System.Exception e)
-			{
-				Debug.LogError(e);
-			}
-		}
+		///// <summary> Handles saving of poses. </summary>
+		//public void RunSave(List<List<XRT_OVR_Grabber.Pose>> poses)
+  //      {
+  //          try
+  //          {
+		//		Task.Run(() => SavePosesThread(poses));
+		//	}
+		//	catch (System.Exception e)
+		//	{
+		//		Debug.LogError(e);
+		//	}
+		//}
+
+		///// <summary> Handles saving of poses. </summary>
+		//public void RunSave(List<ControllerInteraction> interactionBuffer)
+		//{
+		//	try
+		//	{
+		//		Task.Run(() => SaveInteractionsThread(interactionBuffer));
+		//	}
+		//	catch (System.Exception e)
+		//	{
+		//		Debug.LogError(e);
+		//	}
+		//}
+
+		///// <summary> Handles saving of poses. </summary>
+		//public void RunSave(List<List<XRT_OVR_Grabber.Pose>> poses, List<ControllerInteraction> interactionBuffer)
+		//{
+		//	try
+		//	{
+		//		Task.Run(() => SavePosesAndInteractionsThread(poses, interactionBuffer));
+		//	}
+		//	catch (System.Exception e)
+		//	{
+		//		Debug.LogError(e);
+		//	}
+		//}
 
 		/// <summary> Handles saving of poses. </summary>
-		public void RunSave(List<ControllerInteraction> interactionBuffer)
+		public void RunSave(List<PoseInteractionLog> posesAndInteractions, int deviceCount)
 		{
 			try
 			{
-				Task.Run(() => SaveInteractionsThread(interactionBuffer));
+				Task.Run(() => SavePosesAndInteractionsThread(posesAndInteractions, deviceCount));
 			}
 			catch (System.Exception e)
 			{
@@ -413,32 +446,8 @@ namespace XRT_OVR_Grabber
 			}
 		}
 
-		/// <summary> Handles saving of poses. </summary>
-		public void RunSave(List<List<XRT_OVR_Grabber.Pose>> poses, List<ControllerInteraction> interactionBuffer)
-		{
-			try
-			{
-				Task.Run(() => SavePosesAndInteractionsThread(poses, interactionBuffer));
-			}
-			catch (System.Exception e)
-			{
-				Debug.LogError(e);
-			}
-		}
 
-		/// <summary> Handles saving of poses. </summary>
-		public void RunSave(List<PoseInteractionLog> posesAndInteractions)
-		{
-			try
-			{
-				Task.Run(() => SavePosesAndInteractionsThread(posesAndInteractions));
-			}
-			catch (System.Exception e)
-			{
-				Debug.LogError(e);
-			}
-		}
-
+		/// This will be fixed under a different manner. 
 		/// <summary> Adjusts the header of the file to match the total count of devices </summary>
 		public void FixDeviceHeader(int totalCount)
 		{
