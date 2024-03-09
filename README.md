@@ -2,6 +2,10 @@
 
 Collecting and Logging OpenVR (CLOVR) is an application for collecting realtime data from VR equipment using OpenVR through the SteamVR runtime component. Pose and interaction data is collect in realtime as a secondary target application is being observed as a primary application. Meanwhile, CLOVR does not interface directly with an application and acts as a OpenVR overlay. Additonally, CLOVR can interface with external screen recording software such as Open Broadcasting Software (OBS) to record the in-VR session. 
 
+<p align="Center">
+    <img src="https://github.com/xrtlab/clovr/blob/82cca7a8bfd1ed45c9d9eb600b235e18cd80e713/Documentation/Images/SteamVR%20CLOVR%20Picture.PNG"/>
+</p>
+
 ## Key Features
 
 CLOVR can perform the following: 
